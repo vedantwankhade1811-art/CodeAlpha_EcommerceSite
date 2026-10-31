@@ -1,0 +1,100 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Account Overview &mdash; Cartza{% endblock %}
+
+{% block content %}
+<div class="container section-padding">
+  <div style="max-width: 800px; margin: 0 auto;">
+    <div style="display: flex; justify-content: space-between; align-items: flex-end; margin-bottom: var(--space-32); padding-bottom: var(--space-16); border-bottom: 1px solid var(--border);">
+      <div>
+        <span style="font-size: var(--text-xs); text-transform: uppercase; letter-spacing: 0.08em; color: var(--grey-muted);">Account Dashboard</span>
+        <h1 style="font-size: var(--text-xl);">Hello, {{ user.first_name|default:user.username }}</h1>
+      </div>
+      <div style="display: flex; gap: 12px;">
+        <a href="{% url 'accounts:profile_edit' %}" class="btn btn-secondary btn-sm">Edit Profile</a>
+        <a href="{% url 'accounts:logout' %}" class="btn btn-primary btn-sm">Sign Out</a>
+      </div>
+    </div>
+
+    <!-- Personal Information Card -->
+    <div class="profile-card">
+      <h3 style="font-size: var(--text-base); text-transform: uppercase; letter-spacing: 0.08em; font-family: var(--font-body); font-weight: 600; margin-bottom: var(--space-16);">
+        Personal Information
+      </h3>
+      <div class="profile-info-row">
+        <span class="profile-info-label">Username</span>
+        <span class="profile-info-value">{{ user.username }}</span>
+      </div>
+      <div class="profile-info-row">
+        <span class="profile-info-label">Full Name</span>
+        <span class="profile-info-value">{{ user.get_full_name|default:"Not provided" }}</span>
+      </div>
+      <div class="profile-info-row">
+        <span class="profile-info-label">Email Address</span>
+        <span class="profile-info-value">{{ user.email }}</span>
+      </div>
+      <div class="profile-info-row">
+        <span class="profile-info-label">Contact Phone</span>
+        <span class="profile-info-value">{{ profile.phone|default:"Not provided" }}</span>
+      </div>
+    </div>
+
+    <!-- Default Shipping Address Card -->
+    <div class="profile-card">
+      <h3 style="font-size: var(--text-base); text-transform: uppercase; letter-spacing: 0.08em; font-family: var(--font-body); font-weight: 600; margin-bottom: var(--space-16);">
+        Default Delivery Details
+      </h3>
+      <div class="profile-info-row">
+        <span class="profile-info-label">Street Address</span>
+        <span class="profile-info-value">{{ profile.address|default:"No street address saved" }}</span>
+      </div>
+      <div class="profile-info-row">
+        <span class="profile-info-label">City</span>
+        <span class="profile-info-value">{{ profile.city|default:"-" }}</span>
+      </div>
+      <div class="profile-info-row">
+        <span class="profile-info-label">State</span>
+        <span class="profile-info-value">{{ profile.state|default:"-" }}</span>
+      </div>
+      <div class="profile-info-row">
+        <span class="profile-info-label">PIN Code</span>
+        <span class="profile-info-value">{{ profile.pincode|default:"-" }}</span>
+      </div>
+    </div>
+
+    <!-- Live Order History Card -->
+    <div class="profile-card">
+      <div style="display: flex; justify-content: space-between; align-items: baseline; margin-bottom: var(--space-16);">
+        <h3 style="font-size: var(--text-base); text-transform: uppercase; letter-spacing: 0.08em; font-family: var(--font-body); font-weight: 600; margin-bottom: 0;">
+          Order History &amp; Tracking
+        </h3>
+        <a href="{% url 'orders:history' %}" style="font-size: var(--text-xs); color: var(--accent); font-weight: 600; text-decoration: underline;">
+          View All Orders &rarr;
+        </a>
+      </div>
+
+      {% if user.orders.all %}
+        <div style="display: flex; flex-direction: column; gap: 12px;">
+          {% for ord in user.orders.all|slice:":3" %}
+            <div style="display: flex; justify-content: space-between; align-items: center; padding: 12px 16px; background-color: var(--bg); border: 1px solid var(--border); border-radius: var(--border-radius); font-size: var(--text-xs);">
+              <div>
+                <strong>#{{ ord.order_number }}</strong> &bull; {{ ord.created_at|date:"d M Y" }} &bull; {{ ord.items.count }} item{{ ord.items.count|pluralize }}
+              </div>
+              <div style="display: flex; align-items: center; gap: 12px;">
+                <strong>&#8377;{{ ord.grand_total|floatformat:2 }}</strong>
+                <a href="{% url 'orders:detail' ord.order_number %}" class="btn btn-secondary btn-sm" style="padding: 4px 10px; font-size: 11px;">View</a>
+              </div>
+            </div>
+          {% endfor %}
+        </div>
+      {% else %}
+        <p style="font-size: var(--text-sm); color: var(--grey-muted); margin-bottom: 16px;">
+          You have not placed any orders yet. Discover our timeless collection.
+        </p>
+        <a href="{% url 'products:shop' %}" class="btn btn-secondary btn-sm">Explore Catalog</a>
+      {% endif %}
+    </div>
+  </div>
+</div>
+{% endblock %}

@@ -1,0 +1,92 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Edit Profile &mdash; Cartza{% endblock %}
+
+{% block content %}
+<div class="container section-padding">
+  <div style="max-width: 600px; margin: 0 auto; background-color: var(--white); border: 1px solid var(--border); border-radius: var(--border-radius); padding: var(--space-48) var(--space-32);">
+    <div style="margin-bottom: var(--space-32);">
+      <span style="font-size: var(--text-xs); text-transform: uppercase; letter-spacing: 0.08em; color: var(--grey-muted);">Personal Settings</span>
+      <h1 style="font-size: var(--text-lg); margin-top: 4px;">Update Profile Details</h1>
+    </div>
+
+    <form method="POST" action="{% url 'accounts:profile_edit' %}" novalidate>
+      {% csrf_token %}
+
+      <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px;">
+        <div class="form-group">
+          <label for="id_first_name" class="form-label">First Name</label>
+          <input type="text" name="first_name" id="id_first_name" class="form-control" value="{{ form.first_name.value|default:'' }}">
+          {% if form.first_name.errors %}
+            <div class="form-error">{{ form.first_name.errors.0 }}</div>
+          {% endif %}
+        </div>
+
+        <div class="form-group">
+          <label for="id_last_name" class="form-label">Last Name</label>
+          <input type="text" name="last_name" id="id_last_name" class="form-control" value="{{ form.last_name.value|default:'' }}">
+          {% if form.last_name.errors %}
+            <div class="form-error">{{ form.last_name.errors.0 }}</div>
+          {% endif %}
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label for="id_email" class="form-label">Email Address *</label>
+        <input type="email" name="email" id="id_email" class="form-control" value="{{ form.email.value|default:'' }}" required>
+        {% if form.email.errors %}
+          <div class="form-error">{{ form.email.errors.0 }}</div>
+        {% endif %}
+      </div>
+
+      <div class="form-group">
+        <label for="id_phone" class="form-label">Phone Number</label>
+        <input type="text" name="phone" id="id_phone" class="form-control" placeholder="+91 9876543210" value="{{ form.phone.value|default:'' }}">
+        {% if form.phone.errors %}
+          <div class="form-error">{{ form.phone.errors.0 }}</div>
+        {% endif %}
+      </div>
+
+      <div class="form-group">
+        <label for="id_address" class="form-label">Default Delivery Street Address</label>
+        <textarea name="address" id="id_address" class="form-control" rows="3" placeholder="Flat, House no., Building, Apartment, Street">{{ form.address.value|default:'' }}</textarea>
+        {% if form.address.errors %}
+          <div class="form-error">{{ form.address.errors.0 }}</div>
+        {% endif %}
+      </div>
+
+      <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 12px;">
+        <div class="form-group">
+          <label for="id_city" class="form-label">City</label>
+          <input type="text" name="city" id="id_city" class="form-control" value="{{ form.city.value|default:'' }}">
+          {% if form.city.errors %}
+            <div class="form-error">{{ form.city.errors.0 }}</div>
+          {% endif %}
+        </div>
+
+        <div class="form-group">
+          <label for="id_state" class="form-label">State</label>
+          <input type="text" name="state" id="id_state" class="form-control" value="{{ form.state.value|default:'' }}">
+          {% if form.state.errors %}
+            <div class="form-error">{{ form.state.errors.0 }}</div>
+          {% endif %}
+        </div>
+
+        <div class="form-group">
+          <label for="id_pincode" class="form-label">PIN Code</label>
+          <input type="text" name="pincode" id="id_pincode" class="form-control" maxlength="6" placeholder="400001" value="{{ form.pincode.value|default:'' }}">
+          {% if form.pincode.errors %}
+            <div class="form-error">{{ form.pincode.errors.0 }}</div>
+          {% endif %}
+        </div>
+      </div>
+
+      <div style="display: flex; gap: 16px; margin-top: 16px;">
+        <button type="submit" class="btn btn-primary" style="flex: 1;">Save Changes</button>
+        <a href="{% url 'accounts:profile' %}" class="btn btn-secondary" style="flex: 1;">Cancel</a>
+      </div>
+    </form>
+  </div>
+</div>
+{% endblock %}

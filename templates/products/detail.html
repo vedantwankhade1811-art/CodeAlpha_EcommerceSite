@@ -1,0 +1,269 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}{{ product.name }} &mdash; Cartza{% endblock %}
+{% block meta_description %}{{ product.description|truncatewords:25 }}{% endblock %}
+
+{% block content %}
+<div class="container section-padding" style="padding-top: var(--space-48);">
+  <!-- Breadcrumbs -->
+  <div style="font-size: var(--text-xs); text-transform: uppercase; letter-spacing: 0.08em; color: var(--grey-muted); margin-bottom: var(--space-24);">
+    <a href="{% url 'core:home' %}">Home</a> &nbsp;/&nbsp; 
+    <a href="{% url 'products:shop' %}">Shop</a> &nbsp;/&nbsp; 
+    <a href="{% url 'products:shop' %}?category={{ product.category.slug }}">{{ product.category.name }}</a> &nbsp;/&nbsp;
+    <span style="color: var(--black);">{{ product.name }}</span>
+  </div>
+
+  <div class="product-detail-layout">
+    <!-- Left: Gallery -->
+    <div class="product-gallery">
+      <div class="gallery-main-image">
+        {% if product.image %}
+          <img 
+            id="mainProductImage"
+            src="{{ product.image.url }}" 
+            alt="{{ product.name }}" 
+            width="800" 
+            height="1000"
+            loading="lazy"
+            onerror="this.onerror=null;this.src='/static/images/placeholder.svg';"
+          />
+        {% elif product.primary_image %}
+          <img 
+            id="mainProductImage"
+            src="{{ product.primary_image.image.url }}" 
+            alt="{{ product.name }}" 
+            width="800" 
+            height="1000"
+            loading="lazy"
+            onerror="this.onerror=null;this.src='/static/images/placeholder.svg';"
+          />
+        {% else %}
+          <img 
+            id="mainProductImage"
+            src="/static/images/placeholder.svg" 
+            alt="{{ product.name }}" 
+            width="800" 
+            height="1000"
+            loading="lazy"
+          />
+        {% endif %}
+      </div>
+
+      <!-- Thumbnails if more than 1 image -->
+      {% if product.images.count > 1 %}
+        <div style="display: flex; gap: 12px; margin-top: 12px;">
+          {% for img in product.images.all %}
+            <button 
+              type="button" 
+              onclick="document.getElementById('mainProductImage').src='{{ img.image.url }}';" 
+              style="width: 72px; height: 90px; border: 1px solid var(--border); padding: 0; background: none; cursor: pointer; overflow: hidden; border-radius: 2px;"
+            >
+              <img src="{{ img.image.url }}" alt="{{ product.name }}" style="width: 100%; height: 100%; object-fit: cover;">
+            </button>
+          {% endfor %}
+        </div>
+      {% endif %}
+    </div>
+
+    <!-- Right: Product Information & Purchase options -->
+    <div class="product-detail-info">
+      <a href="{% url 'products:shop' %}?category={{ product.category.slug }}" class="detail-category">
+        {{ product.category.name }}
+      </a>
+      
+      <h1 class="detail-title">{{ product.name }}</h1>
+
+      <!-- Price & Discount -->
+      <div class="detail-price-row">
+        <span class="detail-price">&#8377;{{ product.price|floatformat:2 }}</span>
+        {% if product.compare_at_price and product.compare_at_price > product.price %}
+          <span class="detail-original-price">&#8377;{{ product.compare_at_price|floatformat:2 }}</span>
+          <span class="discount-badge" style="position: static; margin-left: 8px;">Save {{ product.discount_percentage }}%</span>
+        {% endif %}
+      </div>
+
+      <!-- Stock Status -->
+      <div>
+        {% if product.is_in_stock %}
+          <span class="stock-indicator in-stock">
+            <svg style="width: 14px; height: 14px; stroke: #2D6A4F; stroke-width: 2; fill: none;" viewBox="0 0 24 24">
+              <polyline points="20 6 9 17 4 12"></polyline>
+            </svg>
+            In Stock &bull; {% if product.stock <= 5 %}Only {{ product.stock }} units remaining{% else %}{{ product.stock }} units available{% endif %}
+          </span>
+        {% else %}
+          <span class="stock-indicator out-of-stock">
+            <svg style="width: 14px; height: 14px; stroke: var(--error-red); stroke-width: 2; fill: none;" viewBox="0 0 24 24">
+              <line x1="18" y1="6" x2="6" y2="18"></line>
+              <line x1="6" y1="6" x2="18" y2="18"></line>
+            </svg>
+            Sold Out &bull; Restock Expected Shortly
+          </span>
+        {% endif %}
+      </div>
+
+      <!-- Description -->
+      <div class="detail-description">
+        {{ product.description|linebreaks }}
+      </div>
+
+      <!-- Product Options Form -->
+      <form id="productPurchaseForm" method="POST" action="{% url 'cart:add' product.id %}">
+        {% csrf_token %}
+        <input type="hidden" name="product_id" value="{{ product.id }}">
+        <input type="hidden" name="selected_size" id="selectedSizeInput" value="{% if product.sizes_list %}{{ product.sizes_list.0 }}{% endif %}">
+        <input type="hidden" name="selected_color" id="selectedColorInput" value="{% if product.colors_list %}{{ product.colors_list.0 }}{% endif %}">
+        <input type="hidden" name="buy_now" id="buyNowInput" value="0">
+
+        <!-- Available Sizes -->
+        {% if product.sizes_list %}
+          <div class="detail-option-group">
+            <span class="option-label">Select Size</span>
+            <div class="option-chips" data-input-target="selectedSizeInput">
+              {% for size in product.sizes_list %}
+                <button 
+                  type="button" 
+                  class="option-chip {% if forloop.first %}selected{% endif %}" 
+                  data-value="{{ size }}"
+                >
+                  {{ size }}
+                </button>
+              {% endfor %}
+            </div>
+          </div>
+        {% endif %}
+
+        <!-- Available Colors -->
+        {% if product.colors_list %}
+          <div class="detail-option-group">
+            <span class="option-label">Available Color</span>
+            <div class="option-chips" data-input-target="selectedColorInput">
+              {% for color in product.colors_list %}
+                <button 
+                  type="button" 
+                  class="option-chip {% if forloop.first %}selected{% endif %}" 
+                  data-value="{{ color }}"
+                >
+                  {{ color }}
+                </button>
+              {% endfor %}
+            </div>
+          </div>
+        {% endif %}
+
+        <!-- Quantity & Add to Cart Action -->
+        {% if product.is_in_stock %}
+          <div class="detail-option-group">
+            <span class="option-label">Quantity</span>
+            <div class="quantity-selector">
+              <button type="button" class="qty-btn" id="qtyMinus" aria-label="Decrease quantity">&minus;</button>
+              <input type="number" name="quantity" id="qtyInput" value="1" min="1" max="{{ product.stock }}" class="qty-input" aria-label="Quantity">
+              <button type="button" class="qty-btn" id="qtyPlus" aria-label="Increase quantity">&plus;</button>
+            </div>
+          </div>
+
+          <div style="display: flex; gap: 12px; margin-top: 8px;">
+            <button type="submit" class="btn btn-primary" style="flex: 1;" id="addToCartBtn" name="buy_now" value="0">
+              Add to Cart
+            </button>
+            <button type="submit" class="btn btn-secondary" style="flex: 1;" id="buyNowBtn" name="buy_now" value="1">
+              Buy Now
+            </button>
+            <button 
+              type="button" 
+              class="btn-wishlist-detail {% if product.id in wishlist_product_ids %}active{% endif %}" 
+              id="detailWishlistBtn"
+              data-product-id="{{ product.id }}"
+              data-url="{% url 'wishlist:toggle' product.id %}"
+              title="{% if product.id in wishlist_product_ids %}Remove from saved wishlist{% else %}Save to wishlist{% endif %}"
+              aria-label="Wishlist toggle"
+            >
+              <svg class="heart-icon" viewBox="0 0 24 24">
+                <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"></path>
+              </svg>
+            </button>
+          </div>
+        {% else %}
+          <div style="margin-top: 16px;">
+            <button type="button" class="btn btn-primary btn-full" disabled>
+              Item Currently Unavailable
+            </button>
+          </div>
+        {% endif %}
+      </form>
+
+      <!-- Specifications Table -->
+      {% if product.specifications %}
+        <div style="margin-top: var(--space-32); border-top: 1px solid var(--border); padding-top: var(--space-24);">
+          <h3 style="font-size: var(--text-base); text-transform: uppercase; letter-spacing: 0.08em; font-family: var(--font-body); font-weight: 600; margin-bottom: 12px;">
+            Product Specifications
+          </h3>
+          <table class="detail-specs-table">
+            <tbody>
+              {% for spec_key, spec_val in product.specifications.items %}
+                <tr>
+                  <th>{{ spec_key }}</th>
+                  <td>{{ spec_val }}</td>
+                </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+      {% endif %}
+
+      <!-- Shipping & Returns Policy Card -->
+      <div style="margin-top: var(--space-32); background-color: var(--white); border: 1px solid var(--border); padding: 20px; border-radius: 2px;">
+        <div style="display: flex; gap: 12px; margin-bottom: 12px;">
+          <svg class="icon-svg" style="width: 20px; height: 20px; flex-shrink: 0;" viewBox="0 0 24 24">
+            <rect x="1" y="3" width="15" height="13"></rect>
+            <polygon points="16 8 20 8 23 11 23 16 16 16 16 8"></polygon>
+            <circle cx="5.5" cy="18.5" r="2.5"></circle>
+            <circle cx="18.5" cy="18.5" r="2.5"></circle>
+          </svg>
+          <div>
+            <div style="font-size: var(--text-sm); font-weight: 600;">Complimentary Delivery</div>
+            <div style="font-size: var(--text-xs); color: var(--grey-muted);">Orders above &#8377;999 qualify for free express courier across India.</div>
+          </div>
+        </div>
+
+        <div style="display: flex; gap: 12px;">
+          <svg class="icon-svg" style="width: 20px; height: 20px; flex-shrink: 0;" viewBox="0 0 24 24">
+            <polyline points="1 4 1 10 7 10"></polyline>
+            <path d="M3.51 15a9 9 0 1 0 2.13-9.36L1 10"></path>
+          </svg>
+          <div>
+            <div style="font-size: var(--text-sm); font-weight: 600;">7-Day Restful Return &amp; Exchange</div>
+            <div style="font-size: var(--text-xs); color: var(--grey-muted);">Unhappy with fit or finish? Doorstep pickup with complete refund.</div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- Related Products Section -->
+  {% if related_products %}
+    <section class="section-padding" style="border-top: 1px solid var(--border); margin-top: var(--space-64);">
+      <div class="section-header">
+        <div>
+          <h2 class="section-title">Complementary Pieces</h2>
+          <p class="section-subtitle">More curated designs from the {{ product.category.name }} collection</p>
+        </div>
+        <a href="{% url 'products:shop' %}?category={{ product.category.slug }}" class="view-all-link">
+          Explore Collection 
+          <svg style="width: 14px; height: 14px; stroke: currentColor; fill: none; stroke-width: 2;" viewBox="0 0 24 24">
+            <polyline points="9 18 15 12 9 6"></polyline>
+          </svg>
+        </a>
+      </div>
+
+      <div class="product-grid">
+        {% for rel_prod in related_products %}
+          {% include 'partials/product_card.html' with product=rel_prod %}
+        {% endfor %}
+      </div>
+    </section>
+  {% endif %}
+</div>
+{% endblock %}

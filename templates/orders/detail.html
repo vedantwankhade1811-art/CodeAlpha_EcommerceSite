@@ -1,0 +1,148 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Order #{{ order.order_number }} &mdash; Cartza{% endblock %}
+
+{% block content %}
+<div class="container section-padding" style="padding-top: var(--space-48);">
+  <div style="max-width: 800px; margin: 0 auto;">
+    <div style="font-size: var(--text-xs); text-transform: uppercase; letter-spacing: 0.08em; color: var(--grey-muted); margin-bottom: var(--space-16);">
+      <a href="{% url 'accounts:profile' %}">Account</a> &nbsp;/&nbsp; 
+      <a href="{% url 'orders:history' %}">Orders</a> &nbsp;/&nbsp; 
+      <span>#{{ order.order_number }}</span>
+    </div>
+
+    <div style="display: flex; justify-content: space-between; align-items: baseline; margin-bottom: var(--space-32); border-bottom: 1px solid var(--border); padding-bottom: var(--space-16);">
+      <div>
+        <h1 style="font-size: var(--text-xl);">Order Details</h1>
+        <span style="font-size: var(--text-xs); color: var(--grey-muted);">Placed on {{ order.created_at|date:"F d, Y at H:i" }}</span>
+      </div>
+      <div>
+        {% if order.status == 'confirmed' %}
+          <span style="background-color: #E8F5E9; color: #2E7D32; padding: 6px 14px; border-radius: 14px; font-weight: 600; text-transform: uppercase; font-size: 11px;">
+            Confirmed
+          </span>
+        {% elif order.status == 'pending_payment' %}
+          <span style="background-color: #FFF3E0; color: #E65100; padding: 6px 14px; border-radius: 14px; font-weight: 600; text-transform: uppercase; font-size: 11px;">
+            Pending Payment
+          </span>
+        {% elif order.status == 'payment_failed' %}
+          <span style="background-color: #FFEBEE; color: #C62828; padding: 6px 14px; border-radius: 14px; font-weight: 600; text-transform: uppercase; font-size: 11px;">
+            Payment Failed
+          </span>
+        {% else %}
+          <span style="background-color: var(--bg); color: var(--black); padding: 6px 14px; border-radius: 14px; font-weight: 600; text-transform: uppercase; font-size: 11px;">
+            {{ order.get_status_display }}
+          </span>
+        {% endif %}
+      </div>
+    </div>
+
+    {% if order.can_retry_payment %}
+      <div style="background-color: #FFF8E1; border: 1px solid #FFE082; padding: 16px 20px; border-radius: var(--border-radius); margin-bottom: var(--space-24); display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 12px;">
+        <div>
+          <strong style="color: #F57F17; font-size: var(--text-sm);">Payment Awaiting Completion</strong>
+          <p style="font-size: var(--text-xs); color: #5D4037; margin-top: 2px;">
+            This order has not been charged yet. You can complete settlement securely via UPI or Card.
+          </p>
+        </div>
+        <a href="{% url 'orders:payment_retry' order.order_number %}" class="btn btn-primary btn-sm">
+          Complete Payment &rarr;
+        </a>
+      </div>
+    {% endif %}
+
+    <div style="background-color: var(--white); border: 1px solid var(--border); border-radius: var(--border-radius); padding: var(--space-32); margin-bottom: var(--space-32);">
+      <div style="display: grid; grid-template-columns: 1fr 1fr; gap: var(--space-24); padding-bottom: var(--space-24); border-bottom: 1px solid var(--border); margin-bottom: var(--space-24);">
+        <div>
+          <span style="font-size: var(--text-xs); text-transform: uppercase; letter-spacing: 0.08em; color: var(--grey-muted); font-weight: 700; display: block; margin-bottom: 6px;">
+            Shipping Address
+          </span>
+          <div style="font-size: var(--text-sm); line-height: 1.6;">
+            <strong>{{ order.full_name }}</strong><br>
+            {{ order.address }}<br>
+            {{ order.city }}, {{ order.state }} &ndash; {{ order.pincode }}<br>
+            <span style="color: var(--grey-muted);">Phone: {{ order.phone }}</span>
+          </div>
+        </div>
+
+        <div>
+          <span style="font-size: var(--text-xs); text-transform: uppercase; letter-spacing: 0.08em; color: var(--grey-muted); font-weight: 700; display: block; margin-bottom: 6px;">
+            Payment &amp; Logistics
+          </span>
+          <div style="font-size: var(--text-sm); line-height: 1.6;">
+            Payment Method: <strong>{{ order.get_payment_method_display }}</strong><br>
+            Payment Status: 
+            {% if order.is_paid %}
+              <span style="color: #2E7D32; font-weight: 600;">Paid ({{ order.razorpay_payment_id|default:"Verified" }})</span>
+            {% elif order.payment_method == 'cod' %}
+              <span style="color: #555; font-weight: 600;">Pay on Delivery (Doorstep COD)</span>
+            {% elif order.status == 'payment_failed' %}
+              <span style="color: #C62828; font-weight: 600;">Failed ({{ order.payment_error_reason|default:"Declined" }})</span>
+            {% else %}
+              <span style="color: #E65100; font-weight: 600;">Pending Payment</span>
+            {% endif %}<br>
+            Carrier: <strong>Blue Dart Express / Delhivery Surface</strong>
+          </div>
+        </div>
+      </div>
+
+      <h3 style="font-size: var(--text-sm); text-transform: uppercase; letter-spacing: 0.08em; font-family: var(--font-body); font-weight: 700; margin-bottom: var(--space-16);">
+        Items Ordered
+      </h3>
+
+      <div style="display: flex; flex-direction: column; gap: 14px; margin-bottom: var(--space-24);">
+        {% for item in items %}
+          <div style="display: flex; align-items: center; justify-content: space-between; gap: 14px; padding-bottom: 14px; border-bottom: 1px solid var(--border);">
+            <div style="display: flex; align-items: center; gap: 14px;">
+              <img 
+                src="{{ item.image_url }}" 
+                alt="{{ item.product_name }}" 
+                loading="lazy"
+                style="width: 50px; height: 62px; aspect-ratio: 4/5; object-fit: cover; border-radius: var(--border-radius); border: 1px solid var(--border);"
+                onerror="this.onerror=null;this.src='/static/images/placeholder.svg';"
+              />
+              <div>
+                <h4 style="font-size: var(--text-sm); font-weight: 600; margin-bottom: 2px;">
+                  {% if item.product_slug %}
+                    <a href="{% url 'products:detail' item.product_slug %}" style="text-decoration: underline;">{{ item.product_name }}</a>
+                  {% else %}
+                    {{ item.product_name }}
+                  {% endif %}
+                </h4>
+                <div style="font-size: var(--text-xs); color: var(--grey-muted);">
+                  Qty: {{ item.quantity }}{% if item.size %} &bull; Size: {{ item.size }}{% endif %}{% if item.color %} &bull; Color: {{ item.color }}{% endif %}
+                </div>
+              </div>
+            </div>
+            <div style="font-size: var(--text-sm); font-weight: 700;">
+              &#8377;{{ item.line_total|floatformat:2 }}
+            </div>
+          </div>
+        {% endfor %}
+      </div>
+
+      <div style="display: flex; flex-direction: column; gap: 8px; font-size: var(--text-sm);">
+        <div style="display: flex; justify-content: space-between; color: var(--grey-muted);">
+          <span>Subtotal</span>
+          <span>&#8377;{{ order.subtotal|floatformat:2 }}</span>
+        </div>
+        <div style="display: flex; justify-content: space-between; color: var(--grey-muted);">
+          <span>Delivery Fee</span>
+          <span>{% if order.shipping_fee == 0 %}FREE{% else %}&#8377;{{ order.shipping_fee|floatformat:2 }}{% endif %}</span>
+        </div>
+        <div style="border-top: 1px solid var(--border); padding-top: 12px; margin-top: 4px; display: flex; justify-content: space-between; align-items: baseline;">
+          <strong style="font-size: var(--text-base);">Grand Total</strong>
+          <strong style="font-size: 22px; color: var(--black);">&#8377;{{ order.grand_total|floatformat:2 }}</strong>
+        </div>
+      </div>
+    </div>
+
+    <div>
+      <a href="{% url 'orders:history' %}" class="btn btn-secondary btn-sm">
+        &larr; Back to Order History
+      </a>
+    </div>
+  </div>
+</div>
+{% endblock %}

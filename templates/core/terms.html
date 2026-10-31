@@ -1,0 +1,84 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Terms &amp; Conditions &mdash; Cartza{% endblock %}
+
+{% block content %}
+<div class="container section-padding" style="padding-top: var(--space-48);">
+  <!-- Breadcrumb -->
+  <div class="policy-breadcrumb">
+    <a href="{% url 'core:home' %}">Home</a> &nbsp;/&nbsp; 
+    <span>Terms &amp; Conditions</span>
+  </div>
+
+  <div class="policy-layout">
+    {% include 'partials/policy_nav.html' %}
+
+    <article class="policy-main-content">
+      <header class="policy-header">
+        <span class="policy-eyebrow">TERMS OF SERVICE</span>
+        <h1 class="policy-title">Terms &amp; Conditions</h1>
+        <p class="policy-subtitle">
+          Please review these terms and conditions carefully prior to utilizing the Cartza platform or placing orders.
+        </p>
+      </header>
+
+      <section class="policy-section">
+        <h2>1. Scope &amp; Acceptance of Agreement</h2>
+        <p>
+          By accessing the Cartza platform, creating an account, or purchasing any merchandise, you acknowledge that you have read, understood, and agreed to be legally bound by these Terms and Conditions and our Privacy Policy. If you do not agree with any provision herein, you must refrain from using the platform.
+        </p>
+      </section>
+
+      <section class="policy-section">
+        <h2>2. Product Catalog, Accuracy &amp; Pricing</h2>
+        <p>
+          We strive to present colors, textures, and specifications of our products with the utmost visual fidelity. However, because display calibrations vary across devices, subtle variations in hue and tactile appearance may occur.
+        </p>
+        <ul class="policy-bullet-list">
+          <li>All prices displayed on Cartza are denominated in Indian National Rupees (INR &#8377;) and are inclusive of Goods and Services Tax (GST) unless explicitly noted.</li>
+          <li>Prices, promotions, and product availability are subject to change without prior notice.</li>
+          <li>In the rare event that an item is mistakenly catalogued with an erroneous price, Cartza reserves the right to cancel orders placed for the incorrectly priced item and issue a complete refund.</li>
+        </ul>
+      </section>
+
+      <section class="policy-section">
+        <h2>3. Orders, Contract Formation &amp; Cancellation</h2>
+        <p>
+          Receipt of an electronic order confirmation email does not signify our final acceptance of your order. Cartza reserves the right at any time after receipt of your order to accept, decline, or limit order quantities for reasons including, but not limited to, unverified payment authorization, suspected fraudulent activity, or unresolvable inventory deficits.
+        </p>
+        <p>
+          Customers may cancel unfulfilled orders before dispatch by contacting our concierge desk or through the Account Profile dashboard. Once a parcel has been scanned by our courier partner, the return process must be followed upon receipt.
+        </p>
+      </section>
+
+      <section class="policy-section">
+        <h2>4. Intellectual Property Rights</h2>
+        <p>
+          All trademarks, logos, typography, product descriptions, photography, software code, and visual assets featured on the Cartza website are the exclusive intellectual property of Cartza Studio India Pvt. Ltd. No content may be reproduced, modified, distributed, or republished without prior written authorization.
+        </p>
+      </section>
+
+      <section class="policy-section">
+        <h2>5. Limitation of Liability</h2>
+        <p>
+          To the maximum extent permitted by applicable Indian law, Cartza Studio India Pvt. Ltd., its directors, officers, and affiliates shall not be liable for any indirect, incidental, consequential, or punitive damages arising out of your access to or inability to use the platform.
+        </p>
+        <p>
+          Our total cumulative liability for any claim arising from a transaction conducted on this site is strictly capped at the purchase price actually paid by you for the specific product giving rise to the dispute.
+        </p>
+      </section>
+
+      <section class="policy-section">
+        <h2>6. Governing Law &amp; Jurisdiction</h2>
+        <p>
+          These Terms and Conditions shall be governed by, construed, and enforced in accordance with the substantive laws of India. Any dispute, claim, or legal controversy arising hereunder shall be subject to the exclusive jurisdiction of the competent courts located in Bengaluru, Karnataka, India.
+        </p>
+        <p style="margin-top: 24px;">
+          For formal inquiries or legal notices, contact <a href="mailto:legal@cartza.com" style="color: var(--black); font-weight: 600; text-decoration: underline;">legal@cartza.com</a>.
+        </p>
+      </section>
+    </article>
+  </div>
+</div>
+{% endblock %}

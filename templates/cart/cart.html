@@ -1,0 +1,210 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Shopping Bag &mdash; Cartza{% endblock %}
+
+{% block content %}
+<div class="container section-padding" style="padding-top: var(--space-48);">
+  <!-- Breadcrumb -->
+  <div style="font-size: var(--text-xs); text-transform: uppercase; letter-spacing: 0.08em; color: var(--grey-muted); margin-bottom: var(--space-24);">
+    <a href="{% url 'core:home' %}">Home</a> &nbsp;/&nbsp; 
+    <span style="color: var(--black);">Shopping Bag</span>
+  </div>
+
+  <div style="display: flex; justify-content: space-between; align-items: baseline; margin-bottom: var(--space-32); border-bottom: 1px solid var(--border); padding-bottom: var(--space-16);">
+    <h1 style="font-size: var(--text-xl);">Shopping Bag</h1>
+    <span style="font-size: var(--text-sm); color: var(--grey-muted);">
+      {{ total_items }} item{% if total_items != 1 %}s{% endif %}
+    </span>
+  </div>
+
+  {% if cart_items %}
+    <div class="cart-layout" style="display: grid; grid-template-columns: 1fr; gap: var(--space-48);">
+      <div style="display: flex; flex-direction: column; gap: var(--space-24);">
+        <!-- Free Shipping Banner -->
+        {% if needed_for_free_shipping > 0 %}
+          <div style="background-color: var(--white); border: 1px solid var(--border); padding: 14px 20px; font-size: var(--text-xs); border-radius: var(--border-radius); display: flex; justify-content: space-between; align-items: center;">
+            <span>Add <strong style="color: var(--accent);">&#8377;{{ needed_for_free_shipping|floatformat:2 }}</strong> more to enjoy <strong>Free Express Delivery</strong></span>
+            <a href="{% url 'products:shop' %}" style="font-weight: 600; text-decoration: underline;">Add Items</a>
+          </div>
+        {% else %}
+          <div style="background-color: var(--white); border: 1px solid var(--border); padding: 14px 20px; font-size: var(--text-xs); border-radius: var(--border-radius); color: #2E7D32; font-weight: 600;">
+            ✓ Your order qualifies for Complimentary Express Delivery across India.
+          </div>
+        {% endif %}
+
+        <!-- Items Table -->
+        <div style="background-color: var(--white); border: 1px solid var(--border); border-radius: var(--border-radius); overflow: hidden;">
+          {% for item in cart_items %}
+            <div style="display: flex; gap: 20px; padding: 20px; border-bottom: 1px solid var(--border); align-items: center; {% if forloop.last %}border-bottom: none;{% endif %}">
+              <!-- Item Image -->
+              <a href="{% url 'products:detail' item.product_slug %}" style="width: 80px; height: 100px; flex-shrink: 0; background-color: var(--bg); border: 1px solid var(--border); border-radius: var(--border-radius); overflow: hidden; display: block;">
+                <img 
+                  src="{{ item.image_url }}" 
+                  alt="{{ item.product_name }}" 
+                  loading="lazy"
+                  style="width: 100%; height: 100%; aspect-ratio: 4/5; object-fit: cover;"
+                  onerror="this.onerror=null;this.src='/static/images/placeholder.svg';"
+                />
+              </a>
+
+              <!-- Item Details -->
+              <div style="flex: 1; min-width: 0;">
+                <h3 style="font-size: var(--text-sm); font-weight: 600; margin-bottom: 4px;">
+                  <a href="{% url 'products:detail' item.product_slug %}">{{ item.product_name }}</a>
+                </h3>
+                <div style="font-size: var(--text-xs); color: var(--grey-muted); margin-bottom: 8px;">
+                  {% if item.size %}<span>Size: {{ item.size }}</span>{% endif %}
+                  {% if item.size and item.color %} &bull; {% endif %}
+                  {% if item.color %}<span>Color: {{ item.color }}</span>{% endif %}
+                </div>
+                <div style="font-size: var(--text-sm); font-weight: 700; color: var(--black);">
+                  &#8377;{{ item.price|floatformat:2 }}
+                </div>
+              </div>
+
+              <!-- Quantity Controls -->
+              <div class="cart-qty-stepper" style="display: inline-flex; align-items: center; border: 1px solid var(--border); border-radius: var(--border-radius); background-color: var(--white); overflow: hidden;">
+                <form method="POST" action="{% url 'cart:update' item.key %}" style="margin: 0; display: inline-flex;">
+                  {% csrf_token %}
+                  <input type="hidden" name="action" value="decrease">
+                  <button type="submit" class="qty-btn" style="width: 32px; height: 36px; border: none; border-right: 1px solid var(--border); background: transparent; cursor: pointer;" aria-label="Decrease quantity">&minus;</button>
+                </form>
+                <span style="width: 36px; text-align: center; font-size: var(--text-xs); font-weight: 600; user-select: none;">{{ item.quantity }}</span>
+                <form method="POST" action="{% url 'cart:update' item.key %}" style="margin: 0; display: inline-flex;">
+                  {% csrf_token %}
+                  <input type="hidden" name="action" value="increase">
+                  <button type="submit" class="qty-btn" style="width: 32px; height: 36px; border: none; border-left: 1px solid var(--border); background: transparent; cursor: pointer;" {% if item.quantity >= item.max_stock %}disabled style="opacity: 0.35; cursor: not-allowed;"{% endif %} aria-label="Increase quantity">&plus;</button>
+                </form>
+              </div>
+
+              <!-- Line Total -->
+              <div style="width: 100px; text-align: right; font-size: var(--text-sm); font-weight: 700;">
+                &#8377;{{ item.line_total|floatformat:2 }}
+              </div>
+
+              <!-- Remove Button -->
+              <div>
+                <form method="POST" action="{% url 'cart:remove' item.key %}">
+                  {% csrf_token %}
+                  <button type="submit" style="background: none; border: none; cursor: pointer; color: var(--grey-muted); padding: 8px;" title="Remove item" aria-label="Remove item">
+                    <svg class="icon-svg" style="width: 18px; height: 18px;" viewBox="0 0 24 24">
+                      <polyline points="3 6 5 6 21 6"></polyline>
+                      <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
+                    </svg>
+                  </button>
+                </form>
+              </div>
+            </div>
+          {% endfor %}
+        </div>
+
+        <!-- Action Links -->
+        <div style="display: flex; justify-content: space-between; align-items: center;">
+          <a href="{% url 'products:shop' %}" class="btn btn-secondary btn-sm">
+            &larr; Continue Shopping
+          </a>
+          <form method="POST" action="{% url 'cart:clear' %}" onsubmit="return confirm('Are you sure you want to empty your cart?');">
+            {% csrf_token %}
+            <button type="submit" style="background: none; border: none; font-size: var(--text-xs); color: var(--error-red); cursor: pointer; text-decoration: underline;">
+              Clear Shopping Bag
+            </button>
+          </form>
+        </div>
+      </div>
+
+      <!-- Order Summary Column -->
+      <aside>
+        <div style="background-color: var(--white); border: 1px solid var(--border); border-radius: var(--border-radius); padding: var(--space-32); position: sticky; top: 100px;">
+          <h2 style="font-size: var(--text-base); text-transform: uppercase; letter-spacing: 0.08em; font-family: var(--font-body); font-weight: 700; margin-bottom: var(--space-24); padding-bottom: var(--space-16); border-bottom: 1px solid var(--border);">
+            Order Summary
+          </h2>
+
+          <div style="display: flex; justify-content: space-between; font-size: var(--text-sm); margin-bottom: 12px;">
+            <span style="color: var(--grey-muted);">Subtotal</span>
+            <span style="font-weight: 600;">&#8377;{{ subtotal|floatformat:2 }}</span>
+          </div>
+
+          {% if discount > 0 %}
+            <div style="display: flex; justify-content: space-between; font-size: var(--text-sm); margin-bottom: 12px; color: #2E7D32;">
+              <span>Promo Discount ({{ coupon_code }})</span>
+              <span style="font-weight: 600;">&minus;&#8377;{{ discount|floatformat:2 }}</span>
+            </div>
+          {% endif %}
+
+          <div style="display: flex; justify-content: space-between; font-size: var(--text-sm); margin-bottom: 16px;">
+            <span style="color: var(--grey-muted);">Estimated Delivery</span>
+            <span>
+              {% if shipping == 0 %}
+                <span style="color: #2E7D32; font-weight: 600;">FREE</span>
+              {% else %}
+                <span style="font-weight: 600;">&#8377;{{ shipping|floatformat:2 }}</span>
+              {% endif %}
+            </span>
+          </div>
+
+          <!-- Coupon Box -->
+          <div class="coupon-box" style="margin-bottom: var(--space-16);">
+            {% if coupon_code %}
+              <div class="coupon-applied-tag">
+                <span>&#10003; <strong>{{ coupon_code }}</strong> applied</span>
+                <form method="POST" action="{% url 'cart:remove_coupon' %}" style="display: inline;">
+                  {% csrf_token %}
+                  <button type="submit" class="coupon-remove-btn" title="Remove promo code">&times;</button>
+                </form>
+              </div>
+            {% else %}
+              <form method="POST" action="{% url 'cart:apply_coupon' %}" class="coupon-form">
+                {% csrf_token %}
+                <input 
+                  type="text" 
+                  name="coupon_code" 
+                  placeholder="Promo code (e.g. CARTZA15)" 
+                  class="coupon-input"
+                  required
+                />
+                <button type="submit" class="btn btn-secondary btn-sm" style="padding: 0 16px;">Apply</button>
+              </form>
+            {% endif %}
+          </div>
+
+          <div style="border-top: 1px solid var(--border); padding-top: var(--space-16); margin-top: var(--space-16); display: flex; justify-content: space-between; align-items: baseline; margin-bottom: var(--space-24);">
+            <span style="font-size: var(--text-base); font-weight: 700;">Grand Total</span>
+            <span style="font-size: 22px; font-weight: 700; color: var(--black);">&#8377;{{ grand_total|floatformat:2 }}</span>
+          </div>
+
+          <a href="{% url 'orders:checkout' %}" class="btn btn-primary btn-full" style="margin-bottom: 12px;">
+            Proceed to Checkout &rarr;
+          </a>
+
+          <div style="margin-top: var(--space-24); border-top: 1px solid var(--border); padding-top: var(--space-16); font-size: var(--text-xs); color: var(--grey-muted); line-height: 1.7;">
+            <div>&bull; Authentic Handcrafted &amp; Factory Inspected</div>
+            <div>&bull; 7-Day Hassle-Free Restful Returns</div>
+            <div>&bull; Encrypted &amp; Secure Transactions</div>
+          </div>
+        </div>
+      </aside>
+    </div>
+  {% else %}
+    <!-- Empty Cart State -->
+    <div class="empty-state" style="max-width: 600px; margin: 0 auto;">
+      <svg class="icon-svg" style="width: 48px; height: 48px; margin: 0 auto 16px; stroke: var(--grey-muted);" viewBox="0 0 24 24">
+        <circle cx="9" cy="21" r="1"></circle>
+        <circle cx="20" cy="21" r="1"></circle>
+        <path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"></path>
+      </svg>
+      <h3>Your Shopping Bag is Empty</h3>
+      <p>You haven't added any essentials to your collection yet. Explore our timeless pieces crafted with intention.</p>
+      <a href="{% url 'products:shop' %}" class="btn btn-primary">Discover Catalog</a>
+    </div>
+  {% endif %}
+</div>
+
+<style>
+@media (min-width: 900px) {
+  .cart-layout {
+    grid-template-columns: 1.6fr 1fr !important;
+  }
+}
+</style>
+{% endblock %}

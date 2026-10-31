@@ -1,0 +1,52 @@
+<footer class="site-footer">
+  <div class="container">
+    <div class="footer-top">
+      <!-- Col 1: Brand Info -->
+      <div class="footer-brand">
+        <h3>CARTZA</h3>
+        <p>Curated everyday essentials, thoughtfully selected for the intentional lifestyle. Designed with restraint, built for longevity.</p>
+        <p style="margin-top: 16px; font-size: 13px; color: #888888;">
+          Mumbai &bull; Bengaluru &bull; New Delhi
+        </p>
+      </div>
+
+      <!-- Col 2: Categories -->
+      <div class="footer-column">
+        <h4>Collections</h4>
+        <ul class="footer-links">
+          {% for cat in nav_categories %}
+            <li><a href="{% url 'products:shop' %}?category={{ cat.slug }}">{{ cat.name }}</a></li>
+          {% endfor %}
+        </ul>
+      </div>
+
+      <!-- Col 3: Customer Care -->
+      <div class="footer-column">
+        <h4>Customer Care</h4>
+        <ul class="footer-links">
+          <li><a href="{% url 'products:shop' %}">All Products</a></li>
+          <li><a href="{% url 'products:shop' %}?sort=newest">New Arrivals</a></li>
+          <li><a href="{% url 'products:shop' %}?sort=price_asc">Value Editions</a></li>
+          <li><a href="{% url 'accounts:profile' %}">Account Details</a></li>
+        </ul>
+      </div>
+
+      <!-- Col 4: Assistance & Policies -->
+      <div class="footer-column">
+        <h4>Assistance & Policies</h4>
+        <ul class="footer-links">
+          <li><a href="{% url 'core:about' %}">About Cartza</a></li>
+          <li><a href="{% url 'core:shipping' %}">Shipping & Delivery</a></li>
+          <li><a href="{% url 'core:returns' %}">Returns & Exchange</a></li>
+          <li><a href="{% url 'core:privacy' %}">Privacy Policy</a></li>
+          <li><a href="{% url 'core:terms' %}">Terms & Conditions</a></li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="footer-bottom">
+      <div>&copy; 2026 Cartza Studio India Pvt. Ltd. All rights reserved.</div>
+      <div>Designed with restraint. Authentic essentials.</div>
+    </div>
+  </div>
+</footer>

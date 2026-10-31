@@ -1,0 +1,120 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Returns &amp; Exchange &mdash; Cartza{% endblock %}
+
+{% block content %}
+<div class="container section-padding" style="padding-top: var(--space-48);">
+  <!-- Breadcrumb -->
+  <div class="policy-breadcrumb">
+    <a href="{% url 'core:home' %}">Home</a> &nbsp;/&nbsp; 
+    <span>Returns &amp; Exchange</span>
+  </div>
+
+  <div class="policy-layout">
+    {% include 'partials/policy_nav.html' %}
+
+    <article class="policy-main-content">
+      <header class="policy-header">
+        <span class="policy-eyebrow">7-DAY RESTFUL GUARANTEE</span>
+        <h1 class="policy-title">Returns &amp; Exchange Policy</h1>
+        <p class="policy-subtitle">
+          If any piece fails to delight you in fit, tactile feel, or finish, we provide complimentary doorstep return and exchange with no questions asked.
+        </p>
+      </header>
+
+      <!-- 3 Step Process Grid -->
+      <section class="policy-section">
+        <h2>How to Initiate a Return or Exchange</h2>
+        <div class="process-steps-grid">
+          <div class="process-step-card">
+            <span class="step-num">Step 1</span>
+            <h3>Submit Request</h3>
+            <p>Visit your <a href="{% url 'accounts:profile' %}" style="text-decoration: underline; font-weight: 600;">Account Profile</a> or email <a href="mailto:concierge@cartza.com" style="text-decoration: underline;">concierge@cartza.com</a> within 7 calendar days of receipt.</p>
+          </div>
+          <div class="process-step-card">
+            <span class="step-num">Step 2</span>
+            <h3>Doorstep Collection</h3>
+            <p>Our courier partner will arrive at your address within 24&ndash;48 hours to collect the packaged parcel. No printing of shipping labels required.</p>
+          </div>
+          <div class="process-step-card">
+            <span class="step-num">Step 3</span>
+            <h3>Refund or Replacement</h3>
+            <p>Upon arrival at our inspection studio, your replacement is dispatched immediately or your full refund is credited back to your original payment method in 3&ndash;5 working days.</p>
+          </div>
+        </div>
+      </section>
+
+      <!-- Eligibility Criteria -->
+      <section class="policy-section">
+        <h2>Condition &amp; Eligibility Guidelines</h2>
+        <p>To qualify for a restful return or exchange, items must satisfy the following honest criteria:</p>
+        <div class="feature-bullets">
+          <div class="feature-bullet-item">
+            <div class="bullet-icon">&#10003;</div>
+            <div>
+              <strong>Original Unaltered State</strong>
+              <p>Items must be unworn, unwashed, and free of perfumes, makeup marks, or pet hair, with all original Cartza tags and spare buttons intact.</p>
+            </div>
+          </div>
+          <div class="feature-bullet-item">
+            <div class="bullet-icon">&#10003;</div>
+            <div>
+              <strong>Footwear &amp; Leather Goods</strong>
+              <p>Shoes must only be tried on clean, carpeted surfaces. Footwear returned with scuffed soles or creased vamps will be subject to rejection.</p>
+            </div>
+          </div>
+          <div class="feature-bullet-item">
+            <div class="bullet-icon">&#10003;</div>
+            <div>
+              <strong>Hygienic Essentials</strong>
+              <p>Personal grooming items, face masks, or items explicitly labelled &ldquo;Final Archive Sale&rdquo; are not eligible for exchange or return due to sanitary considerations.</p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Refund Methods -->
+      <section class="policy-section">
+        <h2>Refund Methods &amp; Timelines</h2>
+        <table class="policy-table">
+          <thead>
+            <tr>
+              <th>Original Payment Method</th>
+              <th>Refund Mechanism</th>
+              <th>Processing Timeline</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>UPI (Google Pay, PhonePe, Paytm)</td>
+              <td>Direct UPI reversal to linked VPA</td>
+              <td>1 &ndash; 2 Business Days</td>
+            </tr>
+            <tr>
+              <td>Credit / Debit Card (Visa, MasterCard, RuPay)</td>
+              <td>Reversal through payment gateway</td>
+              <td>3 &ndash; 5 Business Days</td>
+            </tr>
+            <tr>
+              <td>Net Banking (All Indian Banks)</td>
+              <td>Bank account credit reversal</td>
+              <td>3 &ndash; 7 Business Days</td>
+            </tr>
+            <tr>
+              <td>Cartza Store Credit (Optional)</td>
+              <td>Instant account credit voucher with 12-month validity</td>
+              <td>Instantaneous</td>
+            </tr>
+          </tbody>
+        </table>
+      </section>
+
+      <section class="policy-section">
+        <h2>Need help with sizing or exchanges?</h2>
+        <p>Our sizing specialists can arrange a direct size exchange so you don't miss out on stock. Contact us at <a href="mailto:concierge@cartza.com" style="color: var(--black); font-weight: 600; text-decoration: underline;">concierge@cartza.com</a>.</p>
+      </section>
+    </article>
+  </div>
+</div>
+{% endblock %}

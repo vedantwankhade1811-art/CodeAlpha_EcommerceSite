@@ -1,0 +1,134 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Order History &mdash; Cartza{% endblock %}
+
+{% block content %}
+<div class="container section-padding" style="padding-top: var(--space-48);">
+  <div style="max-width: 900px; margin: 0 auto;">
+    <div style="display: flex; justify-content: space-between; align-items: baseline; margin-bottom: var(--space-32); border-bottom: 1px solid var(--border); padding-bottom: var(--space-16);">
+      <div>
+        <div style="font-size: var(--text-xs); text-transform: uppercase; letter-spacing: 0.08em; color: var(--grey-muted); margin-bottom: 6px;">
+          <a href="{% url 'accounts:profile' %}">Account</a> &nbsp;/&nbsp; <span>Order History</span>
+        </div>
+        <h1 style="font-size: var(--text-xl);">Your Orders</h1>
+      </div>
+      <a href="{% url 'products:shop' %}" class="btn btn-secondary btn-sm">Explore Collection</a>
+    </div>
+
+    {% if orders %}
+      <div style="display: flex; flex-direction: column; gap: var(--space-24);">
+        {% for order in orders %}
+          <div style="background-color: var(--white); border: 1px solid var(--border); border-radius: var(--border-radius); overflow: hidden;">
+            <!-- Order Header Bar -->
+            <div style="background-color: var(--bg); padding: 16px 24px; border-bottom: 1px solid var(--border); display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 12px; font-size: var(--text-xs);">
+              <div style="display: flex; gap: 24px;">
+                <div>
+                  <span style="color: var(--grey-muted); display: block;">ORDER PLACED</span>
+                  <strong>{{ order.created_at|date:"d M Y" }}</strong>
+                </div>
+                <div>
+                  <span style="color: var(--grey-muted); display: block;">TOTAL</span>
+                  <strong>&#8377;{{ order.grand_total|floatformat:2 }}</strong>
+                </div>
+                <div>
+                  <span style="color: var(--grey-muted); display: block;">SHIP TO</span>
+                  <strong>{{ order.full_name }}</strong>
+                </div>
+              </div>
+
+              <div style="display: flex; align-items: center; gap: 16px;">
+                <span style="font-family: monospace; font-weight: 600;">#{{ order.order_number }}</span>
+                {% if order.status == 'confirmed' %}
+                  <span style="background-color: #E8F5E9; color: #2E7D32; padding: 4px 10px; border-radius: 12px; font-weight: 600; text-transform: uppercase; font-size: 10px;">
+                    {{ order.get_status_display }}
+                  </span>
+                {% elif order.status == 'pending_payment' %}
+                  <span style="background-color: #FFF3E0; color: #E65100; padding: 4px 10px; border-radius: 12px; font-weight: 600; text-transform: uppercase; font-size: 10px;">
+                    Pending Payment
+                  </span>
+                {% elif order.status == 'payment_failed' %}
+                  <span style="background-color: #FFEBEE; color: #C62828; padding: 4px 10px; border-radius: 12px; font-weight: 600; text-transform: uppercase; font-size: 10px;">
+                    Payment Failed
+                  </span>
+                {% else %}
+                  <span style="background-color: var(--bg); color: var(--black); padding: 4px 10px; border-radius: 12px; font-weight: 600; text-transform: uppercase; font-size: 10px;">
+                    {{ order.get_status_display }}
+                  </span>
+                {% endif %}
+              </div>
+            </div>
+
+            <!-- Order Items Preview -->
+            <div style="padding: 24px;">
+              <div style="display: flex; flex-direction: column; gap: 16px;">
+                {% for item in order.items.all %}
+                  <div style="display: flex; align-items: center; justify-content: space-between;">
+                    <div style="display: flex; align-items: center; gap: 16px;">
+                      <img 
+                        src="{{ item.image_url }}" 
+                        alt="{{ item.product_name }}" 
+                        loading="lazy"
+                        style="width: 50px; height: 62px; aspect-ratio: 4/5; object-fit: cover; border: 1px solid var(--border); border-radius: var(--border-radius);"
+                        onerror="this.onerror=null;this.src='/static/images/placeholder.svg';"
+                      />
+                      <div>
+                        <h4 style="font-size: var(--text-sm); font-weight: 600;">
+                          {% if item.product_slug %}
+                            <a href="{% url 'products:detail' item.product_slug %}" style="text-decoration: underline;">{{ item.product_name }}</a>
+                          {% else %}
+                            {{ item.product_name }}
+                          {% endif %}
+                        </h4>
+                        <div style="font-size: var(--text-xs); color: var(--grey-muted);">
+                          Qty: {{ item.quantity }}{% if item.size %} &bull; {{ item.size }}{% endif %}{% if item.color %} &bull; {{ item.color }}{% endif %}
+                        </div>
+                      </div>
+                    </div>
+                    <div style="font-size: var(--text-sm); font-weight: 700;">
+                      &#8377;{{ item.line_total|floatformat:2 }}
+                    </div>
+                  </div>
+                {% endfor %}
+              </div>
+
+              <div style="margin-top: 20px; padding-top: 16px; border-top: 1px solid var(--border); display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 12px;">
+                <span style="font-size: var(--text-xs); color: var(--grey-muted);">
+                  Payment: {{ order.get_payment_method_display }} &bull; 
+                  {% if order.is_paid %}
+                    <span style="color: #2E7D32; font-weight: 600;">Paid</span>
+                  {% elif order.payment_method == 'cod' %}
+                    <span style="color: #555;">Pay on Delivery (COD)</span>
+                  {% else %}
+                    <span style="color: #E65100; font-weight: 600;">Pending Payment</span>
+                  {% endif %}
+                </span>
+                <div style="display: flex; gap: 8px;">
+                  {% if order.can_retry_payment %}
+                    <a href="{% url 'orders:payment_retry' order.order_number %}" class="btn btn-primary btn-sm">
+                      Pay Now &rarr;
+                    </a>
+                  {% endif %}
+                  <a href="{% url 'orders:detail' order.order_number %}" class="btn btn-secondary btn-sm">
+                    View Order Details
+                  </a>
+                </div>
+              </div>
+            </div>
+          </div>
+        {% endfor %}
+      </div>
+    {% else %}
+      <div class="empty-state" style="padding: var(--space-64) 20px; text-align: center;">
+        <svg class="icon-svg" style="width: 48px; height: 48px; stroke: var(--grey-muted); margin: 0 auto 16px;" viewBox="0 0 24 24">
+          <rect x="2" y="7" width="20" height="14" rx="2" ry="2"></rect>
+          <path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"></path>
+        </svg>
+        <h3>No Orders Placed Yet</h3>
+        <p>You haven't completed any orders yet. Discover our curated catalog of intentional pieces.</p>
+        <a href="{% url 'products:shop' %}" class="btn btn-primary">Start Shopping</a>
+      </div>
+    {% endif %}
+  </div>
+</div>
+{% endblock %}

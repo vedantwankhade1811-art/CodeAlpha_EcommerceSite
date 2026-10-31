@@ -1,0 +1,170 @@
+<!-- Sticky Header & Continuous Announcement Ticker Wrapper -->
+<div class="site-header-sticky-wrapper">
+  <!-- Moving Black Announcement Bar (Continuous Ticker) -->
+  <div class="announcement-bar-wrapper">
+    <div class="announcement-bar">
+      <div class="announcement-ticker" role="region" aria-label="Store Announcement Ticker">
+        <div class="ticker-track">
+          <span class="ticker-item">Free express delivery across India on orders above &#8377;999 &bull; Use Code <strong>CARTZA</strong></span>
+          <span class="ticker-divider">&bull;</span>
+          <span class="ticker-item">Complimentary 7-day restful returns &amp; doorstep exchanges</span>
+          <span class="ticker-divider">&bull;</span>
+          <span class="ticker-item">Cartza &mdash; Everything You Need. Nothing You Don't.</span>
+          <span class="ticker-divider">&bull;</span>
+          <span class="ticker-item">Handcrafted Materials &bull; Belgian Flax Linen &bull; Vegetable-Tanned Hides &bull; Studio Tech</span>
+          <span class="ticker-divider">&bull;</span>
+          <!-- Duplicate items for seamless continuous marquee loop -->
+          <span class="ticker-item" aria-hidden="true">Free express delivery across India on orders above &#8377;999 &bull; Use Code <strong>CARTZA</strong></span>
+          <span class="ticker-divider" aria-hidden="true">&bull;</span>
+          <span class="ticker-item" aria-hidden="true">Complimentary 7-day restful returns &amp; doorstep exchanges</span>
+          <span class="ticker-divider" aria-hidden="true">&bull;</span>
+          <span class="ticker-item" aria-hidden="true">Cartza &mdash; Everything You Need. Nothing You Don't.</span>
+          <span class="ticker-divider" aria-hidden="true">&bull;</span>
+          <span class="ticker-item" aria-hidden="true">Handcrafted Materials &bull; Belgian Flax Linen &bull; Vegetable-Tanned Hides &bull; Studio Tech</span>
+          <span class="ticker-divider" aria-hidden="true">&bull;</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Main Header -->
+  <header class="site-header">
+    <div class="container">
+      <div class="header-inner">
+        <!-- Header Left (Hamburger on mobile + Brand Logo) -->
+        <div class="header-left">
+          <button class="mobile-menu-toggle" id="mobileMenuToggle" aria-label="Toggle navigation menu" aria-expanded="false">
+            <svg class="icon-svg" viewBox="0 0 24 24">
+              <line x1="3" y1="6" x2="21" y2="6"></line>
+              <line x1="3" y1="12" x2="21" y2="12"></line>
+              <line x1="3" y1="18" x2="21" y2="18"></line>
+            </svg>
+          </button>
+
+          <!-- Brand Logo -->
+          <a href="{% url 'core:home' %}" class="brand-logo" aria-label="Cartza Home">
+            <svg class="brand-icon" viewBox="0 0 24 24">
+              <path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"></path>
+              <line x1="3" y1="6" x2="21" y2="6"></line>
+              <path d="M16 10a4 4 0 0 1-8 0"></path>
+            </svg>
+            <span>CARTZA</span>
+          </a>
+        </div>
+
+        <!-- Desktop Navigation -->
+        <nav class="nav-desktop" aria-label="Main Navigation">
+          <a href="{% url 'core:home' %}" class="nav-link {% if request.resolver_match.url_name == 'home' %}active{% endif %}">Home</a>
+          <a href="{% url 'products:shop' %}" class="nav-link {% if request.resolver_match.url_name == 'shop' and not selected_category_slug %}active{% endif %}">All Products</a>
+          {% for cat in nav_categories %}
+            <a href="{% url 'products:category_shop' cat.slug %}" class="nav-link {% if selected_category_slug == cat.slug %}active{% endif %}">{{ cat.name }}</a>
+          {% endfor %}
+        </nav>
+
+        <!-- Header Actions -->
+        <div class="header-actions">
+          <!-- Search Trigger -->
+          <button class="header-action-btn" id="headerSearchBtn" aria-label="Search Catalog">
+            <svg class="icon-svg" viewBox="0 0 24 24">
+              <circle cx="11" cy="11" r="8"></circle>
+              <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+            </svg>
+          </button>
+
+          <!-- Account / Profile -->
+          {% if user.is_authenticated %}
+            <a href="{% url 'accounts:profile' %}" class="header-action-btn" aria-label="User Profile" title="Profile ({{ user.username }})">
+              <svg class="icon-svg" viewBox="0 0 24 24">
+                <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
+                <circle cx="12" cy="7" r="4"></circle>
+              </svg>
+            </a>
+          {% else %}
+            <a href="{% url 'accounts:login' %}" class="header-action-btn" aria-label="Sign In" title="Sign In">
+              <svg class="icon-svg" viewBox="0 0 24 24">
+                <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
+                <circle cx="12" cy="7" r="4"></circle>
+              </svg>
+            </a>
+          {% endif %}
+
+          <!-- Wishlist -->
+          <a href="{% url 'wishlist:detail' %}" class="header-action-btn" aria-label="Wishlist" title="Wishlist" id="headerWishlistBtn">
+            <svg class="icon-svg" viewBox="0 0 24 24">
+              <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"></path>
+            </svg>
+            <span class="badge-count wishlist-badge" id="headerWishlistBadge" {% if wishlist_count == 0 %}style="display: none;"{% endif %}>{{ wishlist_count }}</span>
+          </a>
+
+          <!-- Cart -->
+          <a href="{% url 'cart:detail' %}" class="header-action-btn" aria-label="Shopping Cart" title="Cart" id="headerCartBtn">
+            <svg class="icon-svg" viewBox="0 0 24 24">
+              <circle cx="9" cy="21" r="1"></circle>
+              <circle cx="20" cy="21" r="1"></circle>
+              <path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"></path>
+            </svg>
+            <span class="badge-count cart-badge" id="headerCartBadge" {% if cart_count == 0 %}style="display: none;"{% endif %}>{{ cart_count }}</span>
+          </a>
+        </div>
+      </div>
+    </div>
+  </header>
+</div>
+
+<!-- Mobile Navigation Drawer -->
+<div class="mobile-nav-drawer" id="mobileNavDrawer">
+  <div class="mobile-nav-panel">
+    <div class="mobile-nav-header">
+      <span class="brand-logo">CARTZA</span>
+      <button class="search-close-btn" id="mobileNavClose" aria-label="Close navigation menu">&times;</button>
+    </div>
+    <ul class="mobile-nav-links">
+      <li><a href="{% url 'core:home' %}">Home</a></li>
+      <li><a href="{% url 'products:shop' %}">All Products</a></li>
+      {% for cat in nav_categories %}
+        <li><a href="{% url 'products:category_shop' cat.slug %}">{{ cat.name }}</a></li>
+      {% endfor %}
+      <hr style="border: 0; border-top: 1px solid var(--border); margin: 12px 0;">
+      <li>
+        <a href="{% url 'wishlist:detail' %}">
+          Saved Items <span class="wishlist-badge" {% if wishlist_count == 0 %}style="display: none;"{% endif %}>({{ wishlist_count }})</span>
+        </a>
+      </li>
+      <li>
+        <a href="{% url 'cart:detail' %}">
+          Shopping Bag <span class="cart-badge" {% if cart_count == 0 %}style="display: none;"{% endif %}>({{ cart_count }})</span>
+        </a>
+      </li>
+      {% if user.is_authenticated %}
+        <li><a href="{% url 'accounts:profile' %}">My Profile ({{ user.username }})</a></li>
+        <li><a href="{% url 'accounts:logout' %}">Sign Out</a></li>
+      {% else %}
+        <li><a href="{% url 'accounts:login' %}">Sign In</a></li>
+        <li><a href="{% url 'accounts:register' %}">Create Account</a></li>
+      {% endif %}
+    </ul>
+  </div>
+</div>
+
+<!-- Search Modal -->
+<div class="search-modal" id="searchModal">
+  <div class="search-modal-box">
+    <div class="search-modal-header">
+      <span style="font-family: var(--font-heading); font-size: 18px; font-weight: 600;">Search Cartza</span>
+      <button class="search-close-btn" id="searchModalClose" aria-label="Close search">&times;</button>
+    </div>
+    <form action="{% url 'products:shop' %}" method="GET">
+      <div style="display: flex; gap: 8px;">
+        <input 
+          type="text" 
+          name="q" 
+          id="modalSearchInput" 
+          placeholder="Search products, materials, styles..." 
+          class="form-control"
+          style="flex: 1;"
+        />
+        <button type="submit" class="btn btn-primary btn-sm">Search</button>
+      </div>
+    </form>
+  </div>
+</div>

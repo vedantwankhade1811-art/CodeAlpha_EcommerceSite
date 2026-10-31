@@ -1,0 +1,7 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 500" width="400" height="500">
+  <rect width="400" height="500" fill="#F0EDE8"/>
+  <rect x="180" y="210" width="40" height="40" rx="2" fill="none" stroke="#A65E3F" stroke-width="2"/>
+  <path d="M190 210 V202 A10 10 0 0 1 210 202 V210" fill="none" stroke="#A65E3F" stroke-width="2"/>
+  <text x="200" y="275" font-family="'Inter', sans-serif" font-size="12" fill="#6B6B6B" letter-spacing="1.5" text-anchor="middle">CARTZA</text>
+  <text x="200" y="295" font-family="'Inter', sans-serif" font-size="11" fill="#888888" text-anchor="middle">IMAGE UNAVAILABLE</text>
+</svg>

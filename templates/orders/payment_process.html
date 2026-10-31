@@ -1,0 +1,263 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Complete Payment &mdash; Order #{{ order.order_number }} &mdash; Cartza{% endblock %}
+
+{% block content %}
+<div class="container section-padding" style="padding-top: var(--space-48);">
+  <div style="max-width: 680px; margin: 0 auto;">
+
+    <!-- Breadcrumb -->
+    <div style="font-size: var(--text-xs); text-transform: uppercase; letter-spacing: 0.08em; color: var(--grey-muted); margin-bottom: var(--space-24);">
+      <a href="{% url 'core:home' %}">Home</a> &nbsp;/&nbsp; 
+      <a href="{% url 'orders:history' %}">Orders</a> &nbsp;/&nbsp; 
+      <span style="color: var(--black);">Payment Checkout</span>
+    </div>
+
+    <!-- Payment Process Box -->
+    <div style="background-color: var(--white); border: 1px solid var(--border); border-radius: var(--border-radius); padding: var(--space-32);">
+      
+      <div style="display: flex; justify-content: space-between; align-items: baseline; border-bottom: 1px solid var(--border); padding-bottom: var(--space-16); margin-bottom: var(--space-24);">
+        <div>
+          <span style="font-size: var(--text-xs); text-transform: uppercase; letter-spacing: 0.08em; color: var(--accent); font-weight: 700;">
+            SECURE CHECKOUT
+          </span>
+          <h1 style="font-family: var(--font-heading); font-size: var(--text-lg); margin-top: 4px;">
+            Complete Payment
+          </h1>
+        </div>
+        <span style="font-family: monospace; font-size: var(--text-sm); font-weight: 600; background-color: var(--bg); padding: 4px 10px; border-radius: var(--border-radius);">
+          #{{ order.order_number }}
+        </span>
+      </div>
+
+      <!-- Payment Method & Amount Highlight -->
+      <div style="background-color: var(--bg); border: 1px solid var(--border); border-radius: var(--border-radius); padding: 20px; margin-bottom: var(--space-24); display: flex; justify-content: space-between; align-items: center;">
+        <div>
+          <div style="font-size: var(--text-xs); color: var(--grey-muted); text-transform: uppercase; letter-spacing: 0.05em;">Payment Selected</div>
+          <div style="font-size: var(--text-sm); font-weight: 600; margin-top: 2px;">{{ order.get_payment_method_display }}</div>
+          <div style="font-size: 11px; color: var(--grey-muted); margin-top: 2px;">Status: <span style="color: #E65100; font-weight: 600;">Pending Verification</span></div>
+        </div>
+        <div style="text-align: right;">
+          <div style="font-size: var(--text-xs); color: var(--grey-muted); text-transform: uppercase; letter-spacing: 0.05em;">Amount Due</div>
+          <div style="font-size: 24px; font-weight: 700; color: var(--black);">&#8377;{{ order.grand_total|floatformat:2 }}</div>
+        </div>
+      </div>
+
+      <!-- Order Summary Preview -->
+      <div style="margin-bottom: var(--space-24);">
+        <h3 style="font-size: var(--text-xs); text-transform: uppercase; letter-spacing: 0.08em; color: var(--grey-muted); font-weight: 700; margin-bottom: 12px;">
+          Purchased Essentials ({{ items.count }} item{% if items.count != 1 %}s{% endif %})
+        </h3>
+        <div style="display: flex; flex-direction: column; gap: 10px;">
+          {% for item in items %}
+            <div style="display: flex; justify-content: space-between; align-items: center; font-size: var(--text-sm); border-bottom: 1px dashed var(--border); padding-bottom: 8px;">
+              <div>
+                <span>{{ item.quantity }}x {{ item.product_name }}</span>
+                {% if item.size %}<span style="color: var(--grey-muted); font-size: 11px;"> ({{ item.size }})</span>{% endif %}
+              </div>
+              <span style="font-weight: 600;">&#8377;{{ item.line_total|floatformat:2 }}</span>
+            </div>
+          {% endfor %}
+        </div>
+      </div>
+
+      {% if is_configured and razorpay_order_id %}
+        <!-- Real Gateway Action -->
+        <div id="payment-action-area">
+          <p style="font-size: var(--text-xs); color: var(--grey-muted); margin-bottom: var(--space-16); line-height: 1.6;">
+            Click below to launch the encrypted Razorpay gateway modal. Supports all Indian UPI handles (Google Pay, PhonePe, Paytm, BHIM) and Credit / Debit Cards with 256-bit bank encryption.
+          </p>
+
+          <button id="rzp-button" class="btn btn-primary btn-full" style="padding: 16px; font-size: 15px;">
+            Pay &#8377;{{ order.grand_total|floatformat:2 }} via Razorpay &rarr;
+          </button>
+
+          <div id="payment-status-message" style="display: none; margin-top: 16px; padding: 12px; border-radius: var(--border-radius); font-size: var(--text-xs);"></div>
+        </div>
+
+        <!-- Official Razorpay Checkout Script -->
+        <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
+        <script>
+          document.addEventListener('DOMContentLoaded', function() {
+            const payBtn = document.getElementById('rzp-button');
+            const msgBox = document.getElementById('payment-status-message');
+
+            const options = {
+              key: "{{ razorpay_key_id }}",
+              amount: "{{ amount_in_paise }}",
+              currency: "INR",
+              name: "Cartza Studio",
+              description: "Order #{{ order.order_number }}",
+              image: "/static/images/cartza-favicon.svg",
+              order_id: "{{ razorpay_order_id }}",
+              prefill: {
+                name: "{{ order.full_name|escapejs }}",
+                email: "{{ order.email|escapejs }}",
+                contact: "{{ order.phone|escapejs }}"
+              },
+              theme: {
+                color: "#171717"
+              },
+              modal: {
+                ondismiss: function() {
+                  // User dismissed or closed the modal without payment
+                  fetch("{% url 'orders:payment_failed' %}", {
+                    method: "POST",
+                    headers: {
+                      "Content-Type": "application/json",
+                      "X-CSRFToken": "{{ csrf_token }}"
+                    },
+                    body: JSON.stringify({
+                      order_number: "{{ order.order_number }}",
+                      description: "Customer closed the Razorpay checkout modal."
+                    })
+                  }).then(() => {
+                    msgBox.style.display = "block";
+                    msgBox.style.backgroundColor = "#FFF3E0";
+                    msgBox.style.color = "#E65100";
+                    msgBox.style.border = "1px solid #FFE0B2";
+                    msgBox.innerHTML = "Payment window closed. Your order remains saved as <strong>Pending Payment</strong>. You may retry whenever ready.";
+                  });
+                }
+              },
+              handler: function(response) {
+                // Payment was processed by gateway; verify signature on server!
+                payBtn.disabled = true;
+                payBtn.innerHTML = "Verifying cryptographic signature...";
+                msgBox.style.display = "block";
+                msgBox.style.backgroundColor = "#E8F5E9";
+                msgBox.style.color = "#2E7D32";
+                msgBox.style.border = "1px solid #C8E6C9";
+                msgBox.textContent = "Verifying payment with bank servers. Please do not refresh...";
+
+                fetch("{% url 'orders:payment_verify' %}", {
+                  method: "POST",
+                  headers: {
+                    "Content-Type": "application/json",
+                    "X-CSRFToken": "{{ csrf_token }}"
+                  },
+                  body: JSON.stringify({
+                    order_number: "{{ order.order_number }}",
+                    razorpay_order_id: response.razorpay_order_id,
+                    razorpay_payment_id: response.razorpay_payment_id,
+                    razorpay_signature: response.razorpay_signature
+                  })
+                })
+                .then(res => res.json())
+                .then(data => {
+                  if (data.status === 'success') {
+                    window.location.href = data.redirect_url;
+                  } else {
+                    payBtn.disabled = false;
+                    payBtn.innerHTML = "Retry Payment &rarr;";
+                    msgBox.style.backgroundColor = "#FFEBEE";
+                    msgBox.style.color = "#C62828";
+                    msgBox.style.border = "1px solid #FFCDD2";
+                    msgBox.textContent = data.message || "Payment verification failed. Invalid digital signature.";
+                  }
+                })
+                .catch(err => {
+                  payBtn.disabled = false;
+                  payBtn.innerHTML = "Retry Payment &rarr;";
+                  msgBox.style.backgroundColor = "#FFEBEE";
+                  msgBox.style.color = "#C62828";
+                  msgBox.textContent = "Network error while verifying payment. Please check your order history.";
+                });
+              }
+            };
+
+            const rzp = new Razorpay(options);
+
+            rzp.on('payment.failed', function(response) {
+              fetch("{% url 'orders:payment_failed' %}", {
+                method: "POST",
+                headers: {
+                  "Content-Type": "application/json",
+                  "X-CSRFToken": "{{ csrf_token }}"
+                },
+                body: JSON.stringify({
+                  order_number: "{{ order.order_number }}",
+                  description: response.error.description || "Bank declined transaction"
+                })
+              });
+              msgBox.style.display = "block";
+              msgBox.style.backgroundColor = "#FFEBEE";
+              msgBox.style.color = "#C62828";
+              msgBox.innerHTML = "Transaction failed: " + (response.error.description || "Declined by issuing bank") + ". You can retry with another method.";
+            });
+
+            payBtn.addEventListener('click', function(e) {
+              e.preventDefault();
+              msgBox.style.display = "none";
+              rzp.open();
+            });
+          });
+        </script>
+
+      {% else %}
+        <!-- Gateway Configuration / Error Notice -->
+        {% if order.payment_error_reason %}
+          <div style="background-color: #FFEBEE; border: 1px solid #FFCDD2; border-radius: var(--border-radius); padding: 16px; margin-bottom: var(--space-20);">
+            <div style="display: flex; gap: 10px; align-items: flex-start;">
+              <svg class="icon-svg" style="width: 20px; height: 20px; stroke: #C62828; flex-shrink: 0;" viewBox="0 0 24 24">
+                <circle cx="12" cy="12" r="10"></circle>
+                <line x1="12" y1="8" x2="12" y2="12"></line>
+                <line x1="12" y1="16" x2="12.01" y2="16"></line>
+              </svg>
+              <div>
+                <strong style="font-size: var(--text-sm); color: #C62828;">Gateway Connection Error</strong>
+                <p style="font-size: var(--text-xs); color: #B71C1C; margin-top: 4px; line-height: 1.5;">
+                  {{ order.payment_error_reason }}
+                </p>
+                <p style="font-size: 11px; color: var(--grey-muted); margin-top: 6px;">
+                  Please check your <code>RAZORPAY_KEY_ID</code> and <code>RAZORPAY_KEY_SECRET</code> in <code>.env</code>.
+                </p>
+              </div>
+            </div>
+          </div>
+        {% endif %}
+
+        <div style="background-color: #FFFDE7; border: 1px solid #FFF59D; border-radius: var(--border-radius); padding: 18px; margin-bottom: var(--space-20);">
+          <div style="display: flex; gap: 10px; align-items: flex-start;">
+            <svg class="icon-svg" style="width: 20px; height: 20px; stroke: #F57F17; flex-shrink: 0;" viewBox="0 0 24 24">
+              <circle cx="12" cy="12" r="10"></circle>
+              <line x1="12" y1="8" x2="12" y2="12"></line>
+              <line x1="12" y1="16" x2="12.01" y2="16"></line>
+            </svg>
+            <div>
+              <strong style="font-size: var(--text-sm); color: #F57F17;">Razorpay Payment Gateway Setup Notice</strong>
+              <p style="font-size: var(--text-xs); color: #5D4037; margin-top: 4px; line-height: 1.5;">
+                Your application order <strong>#{{ order.order_number }}</strong> has been safely created with status <strong>Pending Payment</strong>.
+              </p>
+              <p style="font-size: var(--text-xs); color: #5D4037; margin-top: 6px; line-height: 1.5;">
+                To enable live interactive UPI and Card payments, add your test credentials from Razorpay to your <code style="background-color: rgba(0,0,0,0.06); padding: 2px 4px; border-radius: 2px;">.env</code> file:
+              </p>
+              <pre style="background-color: var(--white); border: 1px solid var(--border); padding: 10px; font-size: 11px; margin-top: 8px; border-radius: var(--border-radius); overflow-x: auto;">RAZORPAY_KEY_ID=rzp_test_...&#10;RAZORPAY_KEY_SECRET=...</pre>
+              <p style="font-size: 11px; color: var(--grey-muted); margin-top: 8px;">
+                Per Cartza security policy, unverified payments are never simulated as successful.
+              </p>
+            </div>
+          </div>
+        </div>
+
+
+        <div style="display: flex; gap: 12px; margin-top: var(--space-16);">
+          <a href="{% url 'orders:detail' order.order_number %}" class="btn btn-secondary btn-full" style="text-align: center;">
+            View Order in History &rarr;
+          </a>
+          <a href="{% url 'products:shop' %}" class="btn btn-primary btn-full" style="text-align: center;">
+            Continue Shopping
+          </a>
+        </div>
+      {% endif %}
+
+      <div style="border-top: 1px solid var(--border); margin-top: var(--space-24); padding-top: var(--space-16); font-size: 11px; color: var(--grey-muted); display: flex; justify-content: space-between;">
+        <span>Encrypted 256-Bit SSL Connection</span>
+        <a href="{% url 'cart:detail' %}" style="text-decoration: underline;">Back to Bag</a>
+      </div>
+
+    </div>
+  </div>
+</div>
+{% endblock %}

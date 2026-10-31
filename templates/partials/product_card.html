@@ -1,0 +1,72 @@
+<div class="product-card">
+  <div class="product-image-container">
+    {% if not hide_wishlist_btn %}
+      <button 
+        type="button" 
+        class="card-wishlist-btn {% if product.id in wishlist_product_ids %}active{% endif %}" 
+        data-product-id="{{ product.id }}"
+        data-url="{% url 'wishlist:toggle' product.id %}"
+        aria-label="Save {{ product.name }} to wishlist"
+        title="{% if product.id in wishlist_product_ids %}Remove from wishlist{% else %}Save to wishlist{% endif %}"
+      >
+        <svg class="heart-icon" viewBox="0 0 24 24">
+          <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"></path>
+        </svg>
+      </button>
+    {% endif %}
+
+    {% if product.discount_percentage > 0 %}
+      <span class="discount-badge">-{{ product.discount_percentage }}%</span>
+    {% endif %}
+
+    {% if not product.is_in_stock %}
+      <span class="out-of-stock-badge">Sold Out</span>
+    {% endif %}
+
+    <a href="{{ product.get_absolute_url }}">
+      {% if product.image %}
+        <img 
+          src="{{ product.image.url }}" 
+          alt="{{ product.name }}" 
+          width="400" 
+          height="500" 
+          loading="lazy"
+          onerror="this.onerror=null;this.src='/static/images/placeholder.svg';"
+        />
+      {% elif product.primary_image %}
+        <img 
+          src="{{ product.primary_image.image.url }}" 
+          alt="{{ product.name }}" 
+          width="400" 
+          height="500" 
+          loading="lazy"
+          onerror="this.onerror=null;this.src='/static/images/placeholder.svg';"
+        />
+      {% else %}
+        <img 
+          src="/static/images/placeholder.svg" 
+          alt="{{ product.name }}" 
+          width="400" 
+          height="500" 
+          loading="lazy"
+        />
+      {% endif %}
+    </a>
+  </div>
+
+  <div class="product-details">
+    <div>
+      <div class="product-category-meta">{{ product.category.name }}</div>
+      <h3 class="product-title">
+        <a href="{{ product.get_absolute_url }}">{{ product.name }}</a>
+      </h3>
+    </div>
+
+    <div class="product-price-row">
+      <span class="product-price">&#8377;{{ product.price|floatformat:2 }}</span>
+      {% if product.compare_at_price and product.compare_at_price > product.price %}
+        <span class="product-original-price">&#8377;{{ product.compare_at_price|floatformat:2 }}</span>
+      {% endif %}
+    </div>
+  </div>
+</div>

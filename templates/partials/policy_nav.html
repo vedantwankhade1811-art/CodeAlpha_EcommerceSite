@@ -1,0 +1,34 @@
+<aside class="policy-sidebar">
+  <div class="policy-sidebar-inner">
+    <h3 class="policy-sidebar-title">Assistance &amp; Policies</h3>
+    <nav class="policy-nav-list" aria-label="Policies Navigation">
+      <a href="{% url 'core:about' %}" class="policy-nav-link {% if active_policy == 'about' %}active{% endif %}">
+        <span>About Cartza</span>
+        <svg class="policy-chevron" viewBox="0 0 24 24"><polyline points="9 18 15 12 9 6"></polyline></svg>
+      </a>
+      <a href="{% url 'core:shipping' %}" class="policy-nav-link {% if active_policy == 'shipping' %}active{% endif %}">
+        <span>Shipping &amp; Delivery</span>
+        <svg class="policy-chevron" viewBox="0 0 24 24"><polyline points="9 18 15 12 9 6"></polyline></svg>
+      </a>
+      <a href="{% url 'core:returns' %}" class="policy-nav-link {% if active_policy == 'returns' %}active{% endif %}">
+        <span>Returns &amp; Exchange</span>
+        <svg class="policy-chevron" viewBox="0 0 24 24"><polyline points="9 18 15 12 9 6"></polyline></svg>
+      </a>
+      <a href="{% url 'core:privacy' %}" class="policy-nav-link {% if active_policy == 'privacy' %}active{% endif %}">
+        <span>Privacy Policy</span>
+        <svg class="policy-chevron" viewBox="0 0 24 24"><polyline points="9 18 15 12 9 6"></polyline></svg>
+      </a>
+      <a href="{% url 'core:terms' %}" class="policy-nav-link {% if active_policy == 'terms' %}active{% endif %}">
+        <span>Terms &amp; Conditions</span>
+        <svg class="policy-chevron" viewBox="0 0 24 24"><polyline points="9 18 15 12 9 6"></polyline></svg>
+      </a>
+    </nav>
+
+    <div class="concierge-support-card">
+      <div class="concierge-badge">CONCIERGE CARE</div>
+      <h4>Direct Assistance</h4>
+      <p>Have questions about fit, fabric, or an active shipment? Our team is at your service 6 days a week.</p>
+      <a href="mailto:concierge@cartza.com" class="concierge-contact-link">concierge@cartza.com</a>
+    </div>
+  </div>
+</aside>

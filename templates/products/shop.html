@@ -1,0 +1,157 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}
+  {% if current_category %}{{ current_category.name }} &mdash; {% endif %}Shop Catalog &mdash; Cartza
+{% endblock %}
+
+{% block content %}
+<div class="container section-padding" style="padding-top: var(--space-48);">
+  <!-- Header / Breadcrumbs -->
+  <div style="margin-bottom: var(--space-24);">
+    <div style="font-size: var(--text-xs); text-transform: uppercase; letter-spacing: 0.08em; color: var(--grey-muted); margin-bottom: 8px;">
+      <a href="{% url 'core:home' %}">Home</a> &nbsp;/&nbsp; 
+      <a href="{% url 'products:shop' %}">Shop</a>
+      {% if current_category %}
+        &nbsp;/&nbsp; <span style="color: var(--black);">{{ current_category.name }}</span>
+      {% endif %}
+    </div>
+    <h1 style="font-size: var(--text-xl);">
+      {% if current_category %}{{ current_category.name }}{% elif query %}Search: &ldquo;{{ query }}&rdquo;{% else %}All Collections{% endif %}
+    </h1>
+    {% if current_category and current_category.description %}
+      <p style="color: var(--grey-muted); font-size: var(--text-sm); max-width: 650px; margin-top: 6px;">
+        {{ current_category.description }}
+      </p>
+    {% endif %}
+  </div>
+
+  <div class="shop-layout">
+    <!-- Filter Sidebar -->
+    <aside class="filters-sidebar">
+      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: var(--space-16);">
+        <span style="font-size: var(--text-sm); font-weight: 700; text-transform: uppercase; letter-spacing: 0.08em;">Filters</span>
+        {% if query or selected_category_slug or min_price or max_price %}
+          <a href="{% url 'products:shop' %}" style="font-size: var(--text-xs); color: var(--accent); font-weight: 600; text-decoration: underline;">Clear All</a>
+        {% endif %}
+      </div>
+
+      <!-- Categories Filter -->
+      <div class="filter-group">
+        <h3 class="filter-title">Categories</h3>
+        <ul class="filter-list">
+          <li>
+            <a href="{% url 'products:shop' %}{% if query %}?q={{ query }}{% endif %}" class="{% if not selected_category_slug %}active{% endif %}">
+              <span>All Products</span>
+            </a>
+          </li>
+          {% for cat in categories %}
+            <li>
+              <a href="{% url 'products:shop' %}?category={{ cat.slug }}{% if query %}&q={{ query }}{% endif %}{% if sort %}&sort={{ sort }}{% endif %}" class="{% if selected_category_slug == cat.slug %}active{% endif %}">
+                <span>{{ cat.name }}</span>
+                <span style="color: var(--grey-muted); font-size: var(--text-xs);">{{ cat.products.count }}</span>
+              </a>
+            </li>
+          {% endfor %}
+        </ul>
+      </div>
+
+      <!-- Price Range Filter Form -->
+      <div class="filter-group">
+        <h3 class="filter-title">Price Range (&#8377;)</h3>
+        <form method="GET" action="{% url 'products:shop' %}">
+          {% if selected_category_slug %}
+            <input type="hidden" name="category" value="{{ selected_category_slug }}">
+          {% endif %}
+          {% if query %}
+            <input type="hidden" name="q" value="{{ query }}">
+          {% endif %}
+          {% if sort %}
+            <input type="hidden" name="sort" value="{{ sort }}">
+          {% endif %}
+          <div class="price-inputs">
+            <input type="number" name="min_price" placeholder="Min" value="{{ min_price }}" min="0" step="100" class="price-input" aria-label="Minimum Price">
+            <span style="color: var(--grey-muted);">-</span>
+            <input type="number" name="max_price" placeholder="Max" value="{{ max_price }}" min="0" step="100" class="price-input" aria-label="Maximum Price">
+          </div>
+          <button type="submit" class="btn btn-secondary btn-sm btn-full" style="padding: 8px 14px;">Apply Price</button>
+        </form>
+      </div>
+    </aside>
+
+    <!-- Products Content Area -->
+    <section>
+      <!-- Shop Toolbar -->
+      <div class="shop-toolbar">
+        <div class="shop-toolbar-results">
+          Showing <strong>{{ page_obj.start_index|default:0 }}&ndash;{{ page_obj.end_index|default:0 }}</strong> of <strong>{{ total_count }}</strong> items
+        </div>
+
+        <!-- Sort Form -->
+        <form method="GET" action="{% url 'products:shop' %}" id="sortForm">
+          {% if selected_category_slug %}
+            <input type="hidden" name="category" value="{{ selected_category_slug }}">
+          {% endif %}
+          {% if query %}
+            <input type="hidden" name="q" value="{{ query }}">
+          {% endif %}
+          {% if min_price %}
+            <input type="hidden" name="min_price" value="{{ min_price }}">
+          {% endif %}
+          {% if max_price %}
+            <input type="hidden" name="max_price" value="{{ max_price }}">
+          {% endif %}
+
+          <div style="display: flex; align-items: center; gap: 8px;">
+            <label for="sortSelect" style="font-size: var(--text-xs); text-transform: uppercase; letter-spacing: 0.08em; font-weight: 600;">Sort By:</label>
+            <select name="sort" id="sortSelect" class="shop-sort-select" onchange="document.getElementById('sortForm').submit();">
+              <option value="newest" {% if sort == 'newest' %}selected{% endif %}>Newest Arrivals</option>
+              <option value="price_asc" {% if sort == 'price_asc' %}selected{% endif %}>Price: Low to High</option>
+              <option value="price_desc" {% if sort == 'price_desc' %}selected{% endif %}>Price: High to Low</option>
+              <option value="popularity" {% if sort == 'popularity' %}selected{% endif %}>Most Popular</option>
+            </select>
+          </div>
+        </form>
+      </div>
+
+      <!-- Product Grid -->
+      {% if products %}
+        <div class="product-grid">
+          {% for product in products %}
+            {% include 'partials/product_card.html' with product=product %}
+          {% endfor %}
+        </div>
+
+        <!-- Pagination -->
+        {% if page_obj.has_other_pages %}
+          <nav class="pagination" aria-label="Catalog Pagination">
+            {% if page_obj.has_previous %}
+              <a href="?page={{ page_obj.previous_page_number }}{% if filter_params %}&{{ filter_params }}{% endif %}" class="page-btn">&larr; Previous</a>
+            {% endif %}
+
+            {% for num in page_obj.paginator.page_range %}
+              {% if page_obj.number == num %}
+                <span class="page-btn active">{{ num }}</span>
+              {% elif num > page_obj.number|add:'-3' and num < page_obj.number|add:'3' %}
+                <a href="?page={{ num }}{% if filter_params %}&{{ filter_params }}{% endif %}" class="page-btn">{{ num }}</a>
+              {% endif %}
+            {% endfor %}
+
+            {% if page_obj.has_next %}
+              <a href="?page={{ page_obj.next_page_number }}{% if filter_params %}&{{ filter_params }}{% endif %}" class="page-btn">Next &rarr;</a>
+            {% endif %}
+          </nav>
+        {% endif %}
+
+      {% else %}
+        <!-- Empty State -->
+        <div class="empty-state">
+          <h3>No products match your criteria</h3>
+          <p>Try refining your search keyword, adjusting the price sliders, or clearing existing filters.</p>
+          <a href="{% url 'products:shop' %}" class="btn btn-primary btn-sm">Clear All Filters</a>
+        </div>
+      {% endif %}
+    </section>
+  </div>
+</div>
+{% endblock %}

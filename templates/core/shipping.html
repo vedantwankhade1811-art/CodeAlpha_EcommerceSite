@@ -1,0 +1,113 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Shipping &amp; Delivery &mdash; Cartza{% endblock %}
+
+{% block content %}
+<div class="container section-padding" style="padding-top: var(--space-48);">
+  <!-- Breadcrumb -->
+  <div class="policy-breadcrumb">
+    <a href="{% url 'core:home' %}">Home</a> &nbsp;/&nbsp; 
+    <span>Shipping &amp; Delivery</span>
+  </div>
+
+  <div class="policy-layout">
+    {% include 'partials/policy_nav.html' %}
+
+    <article class="policy-main-content">
+      <header class="policy-header">
+        <span class="policy-eyebrow">FULFILLMENT &amp; LOGISTICS</span>
+        <h1 class="policy-title">Shipping &amp; Delivery Policy</h1>
+        <p class="policy-subtitle">
+          We ensure insured, reliable, and expedited doorstep delivery across all 28 states and union territories in India.
+        </p>
+      </header>
+
+      <!-- Rates Callout Card -->
+      <section class="policy-section">
+        <h2>Delivery Rates &amp; Thresholds</h2>
+        <div class="rates-summary-grid">
+          <div class="rates-box highlight">
+            <div class="rates-badge">COMPLIMENTARY</div>
+            <div class="rates-amount">FREE</div>
+            <div class="rates-condition">Orders &#8377;999 and above</div>
+            <p>Applied automatically at checkout for all domestic destinations.</p>
+          </div>
+          <div class="rates-box">
+            <div class="rates-badge">STANDARD EXPRESS</div>
+            <div class="rates-amount">&#8377;79.00</div>
+            <div class="rates-condition">Orders under &#8377;999</div>
+            <p>Flat insured rate covering packaging and priority logistics handling.</p>
+          </div>
+        </div>
+      </section>
+
+      <!-- Timelines Table -->
+      <section class="policy-section">
+        <h2>Delivery Timelines</h2>
+        <p>All orders placed before 2:00 PM IST Monday through Saturday are dispatched the same day from our central warehouse in Bengaluru.</p>
+        
+        <table class="policy-table">
+          <thead>
+            <tr>
+              <th>Destination Region</th>
+              <th>Estimated Window</th>
+              <th>Courier Partners</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><strong>Metro Cities</strong><br><span style="font-size: var(--text-xs); color: var(--grey-muted);">Mumbai, Delhi NCR, Bengaluru, Hyderabad, Chennai, Kolkata</span></td>
+              <td>2 &ndash; 3 Business Days</td>
+              <td>Blue Dart Apex / Delhivery Surface</td>
+            </tr>
+            <tr>
+              <td><strong>Tier 2 &amp; Urban Centers</strong><br><span style="font-size: var(--text-xs); color: var(--grey-muted);">Pune, Ahmedabad, Jaipur, Chandigarh, Lucknow, Kochi, Indore</span></td>
+              <td>3 &ndash; 5 Business Days</td>
+              <td>Delhivery / DTDC Express</td>
+            </tr>
+            <tr>
+              <td><strong>Rest of India &amp; Rural Zones</strong><br><span style="font-size: var(--text-xs); color: var(--grey-muted);">Northeastern States, Jammu &amp; Kashmir, Island Territories</span></td>
+              <td>5 &ndash; 7 Business Days</td>
+              <td>India Post Speed Post / DTDC</td>
+            </tr>
+          </tbody>
+        </table>
+      </section>
+
+      <!-- Tracking & Insurance -->
+      <section class="policy-section">
+        <h2>Order Tracking &amp; Transit Insurance</h2>
+        <div class="feature-bullets">
+          <div class="feature-bullet-item">
+            <div class="bullet-icon">&#10003;</div>
+            <div>
+              <strong>Instant Tracking Link</strong>
+              <p>As soon as your shipment is scanned by the courier, you receive an automated SMS and email containing your tracking code and direct live status URL.</p>
+            </div>
+          </div>
+          <div class="feature-bullet-item">
+            <div class="bullet-icon">&#10003;</div>
+            <div>
+              <strong>100% Comprehensive Transit Insurance</strong>
+              <p>Every Cartza parcel is fully insured against theft, loss, or transit damage at zero additional fee to you.</p>
+            </div>
+          </div>
+          <div class="feature-bullet-item">
+            <div class="bullet-icon">&#10003;</div>
+            <div>
+              <strong>Tamper-Evident Security Seal</strong>
+              <p>Do not accept any carton if the security tape is cut or opened. Contact our concierge immediately for an instant replacement.</p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section class="policy-section">
+        <h2>Questions regarding an active delivery?</h2>
+        <p>Reach out to our logistics desk at <a href="mailto:concierge@cartza.com" style="color: var(--black); font-weight: 600; text-decoration: underline;">concierge@cartza.com</a> with your order number for real-time dispatch assistance.</p>
+      </section>
+    </article>
+  </div>
+</div>
+{% endblock %}

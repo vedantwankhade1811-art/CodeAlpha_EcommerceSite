@@ -1,0 +1,60 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Sign In &mdash; Cartza{% endblock %}
+
+{% block content %}
+<div class="container section-padding">
+  <div class="auth-container">
+    <div class="auth-header">
+      <h1 class="auth-title">Welcome Back</h1>
+      <p class="auth-subtitle">Sign in to your Cartza account</p>
+    </div>
+
+    <form method="POST" action="{% url 'accounts:login' %}{% if next %}?next={{ next }}{% endif %}" novalidate>
+      {% csrf_token %}
+      {% if next %}
+        <input type="hidden" name="next" value="{{ next }}">
+      {% endif %}
+
+      <div class="form-group">
+        <label for="usernameInput" class="form-label">Username or Email</label>
+        <input 
+          type="text" 
+          name="username" 
+          id="usernameInput" 
+          class="form-control" 
+          placeholder="Enter username or email" 
+          required 
+          autofocus
+        />
+      </div>
+
+      <div class="form-group">
+        <div style="display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 8px;">
+          <label for="passwordInput" class="form-label" style="margin-bottom: 0;">Password</label>
+          <a href="{% url 'accounts:password_reset' %}" style="font-size: var(--text-xs); color: var(--grey-muted); text-decoration: underline;">
+            Forgot password?
+          </a>
+        </div>
+        <input 
+          type="password" 
+          name="password" 
+          id="passwordInput" 
+          class="form-control" 
+          placeholder="Enter password" 
+          required
+        />
+      </div>
+
+      <button type="submit" class="btn btn-primary btn-full" style="margin-top: 8px;">
+        Sign In
+      </button>
+    </form>
+
+    <div class="auth-footer">
+      New to Cartza? <a href="{% url 'accounts:register' %}{% if next %}?next={{ next }}{% endif %}">Create an account</a>
+    </div>
+  </div>
+</div>
+{% endblock %}

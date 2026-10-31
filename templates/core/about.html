@@ -1,0 +1,71 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}About Cartza &mdash; Our Philosophy &amp; Craft{% endblock %}
+
+{% block content %}
+<div class="container section-padding" style="padding-top: var(--space-48);">
+  <!-- Breadcrumb -->
+  <div class="policy-breadcrumb">
+    <a href="{% url 'core:home' %}">Home</a> &nbsp;/&nbsp; 
+    <span>About Cartza</span>
+  </div>
+
+  <div class="policy-layout">
+    {% include 'partials/policy_nav.html' %}
+
+    <article class="policy-main-content">
+      <header class="policy-header">
+        <span class="policy-eyebrow">OUR ORIGIN &amp; PHILOSOPHY</span>
+        <h1 class="policy-title">Everything You Need.<br>Nothing You Don't.</h1>
+        <p class="policy-subtitle">
+          Cartza was founded with a single, uncompromising mandate: to strip away the noise of fast-fashion and deliver timeless everyday essentials engineered for longevity, comfort, and quiet elegance.
+        </p>
+      </header>
+
+      <section class="policy-section">
+        <h2>The Cartza Manifesto</h2>
+        <p>
+          In a world inundated with fleeting micro-trends and disposable garments, we champion intentional reduction. We believe luxury is not defined by exorbitant logos or manufactured exclusivity, but by the tangible quality of pure fibres, meticulous tailoring, and designs that endure season after season.
+        </p>
+        <p>
+          Every piece in our catalog is developed from first principles &mdash; rigorously tested for fit, washed for shrink resistance, and finished with reinforced stress seams.
+        </p>
+      </section>
+
+      <!-- Key Pillars Grid -->
+      <section class="policy-section">
+        <h2>Our Three Tenets</h2>
+        <div class="pillars-grid">
+          <div class="pillar-card">
+            <span class="pillar-num">01</span>
+            <h3>Material Purity</h3>
+            <p>We work exclusively with certified raw textiles: long-staple European linen, organic combed cotton, full-grain vegetable-tanned leather, and unlacquered solid brass hardware. Zero synthetic fillers.</p>
+          </div>
+          <div class="pillar-card">
+            <span class="pillar-num">02</span>
+            <h3>Direct Craftsmanship</h3>
+            <p>We partner directly with specialized master artisan clusters in Jaipur, Bengaluru, and Kashmir. By removing traditional retail layers, we invest in fair wages and peerless finishing.</p>
+          </div>
+          <div class="pillar-card">
+            <span class="pillar-num">03</span>
+            <h3>Restrained Pricing</h3>
+            <p>Traditional retail marks up products 6&times; to 8&times;. Cartza operates on radical transparency &mdash; pricing each essential fairly without artificial discounting or gimmickry.</p>
+          </div>
+        </div>
+      </section>
+
+      <section class="policy-section">
+        <h2>Commitment to the Earth</h2>
+        <p>
+          From day one, 100% of Cartza shipments are packed in plastic-free, FSC-certified unbleached cartons sealed with natural water-activated paper tape. We offset 100% of transport carbon through accredited green reforestation initiatives in the Western Ghats.
+        </p>
+        <div style="margin-top: var(--space-32); display: flex; gap: 16px;">
+          <a href="{% url 'products:shop' %}" class="btn btn-primary">Discover Catalog</a>
+          <a href="{% url 'core:shipping' %}" class="btn btn-secondary">Delivery Details</a>
+        </div>
+      </section>
+    </article>
+  </div>
+</div>
+{% endblock %}

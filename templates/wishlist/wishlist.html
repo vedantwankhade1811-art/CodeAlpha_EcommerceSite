@@ -1,0 +1,68 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Saved Items &mdash; Wishlist &mdash; Cartza{% endblock %}
+
+{% block content %}
+<div class="container section-padding" style="padding-top: var(--space-48);">
+  <!-- Breadcrumb -->
+  <div style="font-size: var(--text-xs); text-transform: uppercase; letter-spacing: 0.08em; color: var(--grey-muted); margin-bottom: var(--space-24);">
+    <a href="{% url 'core:home' %}">Home</a> &nbsp;/&nbsp; 
+    <span style="color: var(--black);">Saved Items</span>
+  </div>
+
+  <div style="display: flex; justify-content: space-between; align-items: baseline; margin-bottom: var(--space-32); border-bottom: 1px solid var(--border); padding-bottom: var(--space-16);">
+    <div>
+      <h1 style="font-size: var(--text-xl);">Saved Wishlist</h1>
+      <p style="font-size: var(--text-sm); color: var(--grey-muted); margin-top: 4px;">
+        Curate your personal collection of timeless essentials.
+      </p>
+    </div>
+    <span style="font-size: var(--text-sm); color: var(--grey-muted);">
+      {{ total_saved }} item{% if total_saved != 1 %}s{% endif %}
+    </span>
+  </div>
+
+  {% if products %}
+    <div class="product-grid">
+      {% for product in products %}
+        <div class="product-card" style="position: relative;">
+          <!-- Remove from Wishlist action button -->
+          <form method="POST" action="{% url 'wishlist:remove' product.id %}" style="position: absolute; top: 12px; right: 12px; z-index: 10;">
+            {% csrf_token %}
+            <button 
+              type="submit" 
+              class="wishlist-remove-btn" 
+              title="Remove from saved items" 
+              aria-label="Remove {{ product.name }} from wishlist"
+              style="width: 34px; height: 34px; border-radius: 50%; background-color: var(--white); border: 1px solid var(--border); display: flex; align-items: center; justify-content: center; cursor: pointer; box-shadow: 0 2px 6px rgba(0,0,0,0.08);"
+            >
+              <svg style="width: 14px; height: 14px; stroke: var(--black); stroke-width: 2; fill: none;" viewBox="0 0 24 24">
+                <line x1="18" y1="6" x2="6" y2="18"></line>
+                <line x1="6" y1="6" x2="18" y2="18"></line>
+              </svg>
+            </button>
+          </form>
+
+          {% include 'partials/product_card.html' with product=product hide_wishlist_btn=True %}
+
+          <div style="padding: 0 16px 16px 16px;">
+            <a href="{{ product.get_absolute_url }}" class="btn btn-secondary btn-sm btn-full" style="text-align: center;">
+              View Piece &rarr;
+            </a>
+          </div>
+        </div>
+      {% endfor %}
+    </div>
+  {% else %}
+    <div class="empty-state" style="max-width: 600px; margin: 0 auto;">
+      <svg class="icon-svg" style="width: 48px; height: 48px; margin: 0 auto 16px; stroke: var(--grey-muted); fill: none;" viewBox="0 0 24 24">
+        <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"></path>
+      </svg>
+      <h3>Your Wishlist is Empty</h3>
+      <p>Save items you adore by tapping the heart icon as you browse our collections, keeping track of availability for future acquisitions.</p>
+      <a href="{% url 'products:shop' %}" class="btn btn-primary">Discover Catalog</a>
+    </div>
+  {% endif %}
+</div>
+{% endblock %}
